@@ -1,0 +1,15 @@
+            key="boot"
+            key="menu"
+                      <div key={i}>{line}</div>
+                    <div key={`log-${safeLog.substring(0, 10)}-${i}`} className="flex space-x-2">
+            key="map" 
+            key="serving" 
+            key="kitchen" 
+            key="research" 
+            key="customize" 
+            key="restock" 
+            key="bailout" 
+            key="gameover" 
+            key="calendar" 
+            key="alba" 
+            key={gameState}
