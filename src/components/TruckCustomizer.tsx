@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Palette, Truck, CheckCircle2, Terminal, PenTool } from 'lucide-react';
 import { TruckConfig, TruckProp, TruckColor, TruckWheel, TruckGrill, TruckUnderglow, TruckWindow, toSinoKorean } from '../types';
 import { TRUCK_PROPS, TRUCK_COLORS, TRUCK_WHEELS, TRUCK_GRILLS, TRUCK_UNDERGLOWS, TRUCK_WINDOWS, getFrontViewAscii } from '../App';

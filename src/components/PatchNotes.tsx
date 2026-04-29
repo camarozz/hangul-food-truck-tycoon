@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { GAME_VERSION } from '../constants';
 

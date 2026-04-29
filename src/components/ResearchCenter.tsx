@@ -4,10 +4,10 @@
  */
 
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { FlaskConical, DollarSign, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Upgrade, toSinoKorean, toNativeKorean } from '../types';
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence } from 'framer-motion';
 import { audio } from '../audioManager';
 
 const INITIAL_UPGRADES: Upgrade[] = [

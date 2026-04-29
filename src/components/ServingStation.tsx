@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef, useMemo, useCallback, Dispatch, SetStateAction } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Word, Customer, toNativeKorean, toSinoKorean, PolitenessLevel, Location, Inventory, TruckConfig, InventoryBatch, formatKoreanTimeWithHint, DayHistory, CalendarEvent } from '../types';
 import { AlertCircle, CheckCircle2, User, Clock, Trash2, Cog, Play, RotateCcw, Plus, Zap, Brain, Coffee, ShoppingCart, Info, Volume2, Maximize2, Minimize2, ArrowRightCircle } from 'lucide-react';
 import { getFrontViewAscii } from '../App';

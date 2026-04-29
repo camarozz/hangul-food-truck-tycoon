@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { AlertTriangle, FileText, PenTool, Skull } from 'lucide-react';
 import { toSinoKorean, toNativeKorean, LoanType, Word } from '../types';
 import { audio } from '../audioManager';

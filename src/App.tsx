@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Truck, Utensils, BookOpen, Settings, Play, DollarSign, Clock, FlaskConical, Palette, Terminal, Plus, Star, FastForward, LogIn, Skull, Wrench } from 'lucide-react';
 import { GameState, toSinoKorean, toNativeKorean, Upgrade, Location, Inventory, TruckConfig, TruckAdjective, TruckColor, TruckProp, TruckWheel, TruckGrill, TruckUnderglow, TruckWindow, Loan, LoanType, DayHistory, CalendarEvent, ThemeColor, UnlockNotification, Customer, PolitenessLevel } from './types';
 import ServingStation from './components/ServingStation';

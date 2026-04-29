@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar as CalendarIcon, Moon, TrendingUp, AlertCircle, Save, CheckCircle2, XCircle } from 'lucide-react';
 import { DayHistory, CalendarEvent, UnlockNotification } from '../types';
 

@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Timer, CheckCircle2, XCircle, UtensilsCrossed } from 'lucide-react';
 import { NATIVE_NUMBERS, SINO_NUMBERS, toSinoKorean, toNativeKorean } from '../types';
 import { audio } from '../audioManager';

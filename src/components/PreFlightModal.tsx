@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Inventory, Location } from '../types';
 import { RECIPE_REQUIREMENTS, RECIPE_LABELS, INGREDIENT_ICONS, INGREDIENT_NAMES, UI_STRINGS } from '../constants';

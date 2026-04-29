@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Location, Inventory } from '../types';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import PreFlightModal from './PreFlightModal';

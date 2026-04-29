@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Package, Truck, AlertTriangle, CheckCircle2, XCircle, Info, Trash2, AlertCircle, Clock } from 'lucide-react';
 import { toSinoKorean, toNativeKorean, Inventory, InventoryBatch, NATIVE_NUMBERS, SINO_NUMBERS } from '../types';
 import { UI_STRINGS } from '../constants';

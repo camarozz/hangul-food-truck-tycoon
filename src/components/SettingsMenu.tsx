@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Volume2, Monitor, Languages, AlertTriangle, Play } from 'lucide-react';
 
 import { ThemeColor } from '../types';

@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, AlertTriangle, ChevronRight, Play } from 'lucide-react';
 
 interface IntroCutsceneProps {
