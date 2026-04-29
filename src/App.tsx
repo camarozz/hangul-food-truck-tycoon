@@ -929,10 +929,7 @@ export default function App() {
       '> STARTUP GRANT: 100,000₩ (십만 원) redeployed.',
       '> INVENTORY CHECK: Inherited stock found (12 Buns, 10 Beefs, 5 Cheese, 5 Onions).',
       '> LINGUISTICS: Particle Cogs [이/가] [을/를] online.'
-    } else {
-      // If not logged in, just reload to clear local state
-      setTimeout(() => window.location.reload(), 500);
-    }
+    ]);
   };
 
   const handleRestockComplete = (newMoney: number, newInventory: Inventory, newGas: number, repChange: number = 0) => {
