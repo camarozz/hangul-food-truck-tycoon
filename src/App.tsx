@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Truck, Utensils, BookOpen, Settings, Play, DollarSign, Clock, FlaskConical, Palette, Terminal, Plus, Star, FastForward, LogIn, Skull, Wrench } from 'lucide-react';
+import { Truck, Utensils, BookOpen, Settings, Play, DollarSign, Clock, FlaskConical, Palette, Terminal, Plus, Star, FastForward, Skull, Wrench } from 'lucide-react';
 import { GameState, toSinoKorean, toNativeKorean, Upgrade, Location, Inventory, TruckConfig, TruckAdjective, TruckColor, TruckProp, TruckWheel, TruckGrill, TruckUnderglow, TruckWindow, Loan, LoanType, DayHistory, CalendarEvent, ThemeColor, UnlockNotification, Customer, PolitenessLevel } from './types';
 import ServingStation from './components/ServingStation';
 import KitchenLab from './components/KitchenLab';
@@ -1356,7 +1356,7 @@ export default function App() {
             </div>
 
             <div className="text-xs opacity-50 mt-8">
-              [SYSTEM READY] {GAME_VERSION} {isDeveloper && <span className="text-yellow-400 ml-2">[DEV AUTHORIZED]</span>}
+              [SYSTEM READY] {GAME_VERSION}
             </div>
           </motion.div>
         )}
