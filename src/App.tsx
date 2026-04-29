@@ -32,7 +32,7 @@ const debounce = (fn: Function, ms = 300) => {
   };
 };
 
-const DEVELOPER_EMAIL = 'thuan.0933@enotion.io';
+const DEVELOPER_EMAIL = 'thuannguyen093@gmail.com';
 
 export const TRUCK_ADJECTIVES: TruckAdjective[] = [
   { id: 'standard', text: '기본', meaning: 'Standard', attraction: { residence: 1.0, park: 1.0 } }
