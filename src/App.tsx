@@ -215,6 +215,7 @@ export default function App() {
     '> TIPS: Native numbers are for items and hours. Sino are for money and minutes.'
   ]);
   const [showDevPanel, setShowDevPanel] = useState(false);
+  const [isDeveloper, setIsDeveloper] = useState(() => localStorage.getItem('kbite_dev_mode') === 'true');
   const [devMode, setDevMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showPatchNotes, setShowPatchNotes] = useState(false);
@@ -1020,7 +1021,11 @@ export default function App() {
       {isDeveloper && (
         <div className="absolute top-4 right-4 z-[1000] flex flex-col items-end gap-2">
           <button 
-            onClick={() => setDevMode(!devMode)}
+            onClick={() => {
+              setDevMode(!devMode);
+              if (!devMode) localStorage.setItem('kbite_dev_mode', 'true');
+              else localStorage.removeItem('kbite_dev_mode');
+            }}
             className="px-3 py-1.5 bg-black border-2 border-yellow-400 text-yellow-400 font-bold text-xs hover:bg-yellow-400 hover:text-black transition-all flex items-center gap-2"
           >
             <Wrench size={14} />
