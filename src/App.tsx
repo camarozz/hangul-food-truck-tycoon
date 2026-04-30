@@ -32,7 +32,7 @@ const debounce = (fn: Function, ms = 300) => {
   };
 };
 
-const DEVELOPER_EMAIL = 'thuannguyen093@gmail.com';
+
 
 export const TRUCK_ADJECTIVES: TruckAdjective[] = [
   { id: 'standard', text: '기본', meaning: 'Standard', attraction: { residence: 1.0, park: 1.0 } }
@@ -214,7 +214,7 @@ export default function App() {
     '> LINGUISTICS: Particle Cogs [이/가] [을/를] unlocked.',
     '> TIPS: Native numbers are for items and hours. Sino are for money and minutes.'
   ]);
-  const [showDevPanel, setShowDevPanel] = useState(false);
+
   const [isDeveloper, setIsDeveloper] = useState(() => localStorage.getItem('kbite_dev_mode') === 'true');
   const [devMode, setDevMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -504,7 +504,7 @@ export default function App() {
     }
   };
 
-  // Auto-save on important changes (Removed user/isAuthReady dependencies)
+  // Auto-save on important changes
   useEffect(() => {
     const timeout = setTimeout(() => saveProgress(), 800);
     return () => clearTimeout(timeout);
@@ -516,8 +516,6 @@ export default function App() {
       addLog('MARKET UPDATE: Wholesale Market now offering Premium Meats (Beef)!');
     }
   }, [day, reputation]);
-
-  const isDeveloper = false;
 
   const addLog = (message: string) => {
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -1692,6 +1690,7 @@ export default function App() {
               inventory={inventory}
               truckConfig={truckConfig}
               hasFryer={hasFryer}
+              hasBeverageStation={hasBeverageStation}
               unlockedRecipes={unlockedRecipes}
               activeMenu={activeMenu}
               romanizationEnabled={gameSettings.romanization}
@@ -1930,26 +1929,3 @@ function MenuButton({ icon, label, onClick }: { icon: React.ReactNode, label: st
   );
 }
 
-function ActionButton({ icon, label, onClick }: { icon?: React.ReactNode, label: string, onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex items-center justify-center space-x-2 p-3 bg-[#1a1a1a] border border-terminal/20 hover:border-terminal hover:bg-terminal/5 transition-all text-xs font-bold tracking-wider"
-    >
-      {icon && <span className="opacity-70">{icon}</span>}
-      <span>{label}</span>
-    </button>
-  );
-}
-
-function DevToolButton({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex items-center space-x-2 p-2 border border-terminal/30 hover:bg-terminal/10 text-[10px] font-mono transition-all"
-    >
-      <span style={{ color: 'var(--terminal-color)' }}>{icon}</span>
-      <span>{label}</span>
-    </button>
-  );
-}
