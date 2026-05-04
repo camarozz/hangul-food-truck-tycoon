@@ -131,7 +131,7 @@ export default function TruckCustomizer({
               <span>[ 1. PAINT JOB (색상) ]</span>
               <span className="text-yellow-500">50,000₩</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {TRUCK_COLORS.map(color => (
                 <button
                   key={color.id}
@@ -171,7 +171,7 @@ export default function TruckCustomizer({
               <span>[ 3. WHEEL HUBCAPS (휠) ]</span>
               <span className="text-yellow-500">60,000₩</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {TRUCK_WHEELS.map(w => (
                 <button
                   key={w.id}
@@ -191,7 +191,7 @@ export default function TruckCustomizer({
               <span>[ 4. GRILL DECALS (범퍼) ]</span>
               <span className="text-yellow-500">40,000₩</span>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {TRUCK_GRILLS.map(g => (
                 <button
                   key={g.id}

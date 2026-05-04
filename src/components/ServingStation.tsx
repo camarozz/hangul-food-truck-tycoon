@@ -1199,7 +1199,7 @@ export default function ServingStation({
   }, {} as Record<string, number>)).reduce((slots: number, qty: number) => slots + Math.ceil(qty / 20), 0);
 
   return (
-    <div className="space-y-2 font-mono text-sm min-h-screen h-auto flex flex-col pb-8 relative">
+    <div className="flex flex-col font-mono text-sm h-full pb-4 relative overflow-hidden">
       <AnimatePresence>
         {isShiftSummaryOpen && (
           <ShiftSummaryPopup 
@@ -1212,10 +1212,10 @@ export default function ServingStation({
       </AnimatePresence>
 
       {/* Header */}
-      <div className="border-y-2 border-terminal py-1 flex justify-between items-center px-4 bg-[#0c0c0c] shrink-0" style={{ color: 'var(--terminal-color)' }}>
+      <div className="border-y-2 border-terminal py-1 flex justify-between items-center px-2 bg-[#0c0c0c] shrink-0" style={{ color: 'var(--terminal-color)' }}>
         <div className="flex flex-col">
           <span className="font-bold uppercase tracking-widest text-xs">[ K-BITE EXPRESS ] (Open for Business)</span>
-          <span className="text-[10px] opacity-60">DAY: {day.toString().padStart(3, '0')} | FUNDS: {money.toLocaleString()}₩ ({toSinoKorean(money)}) | REP: {'★'.repeat(Math.max(0, Math.min(5, Math.floor(reputation / 20))))}{'☆'.repeat(Math.max(0, 5 - Math.floor(reputation / 20)))}</span>
+          <span className="text-[8px] opacity-60">D:{day.toString().padStart(3,'0')} {money.toLocaleString()}₩ REP:{'★'.repeat(Math.max(0,Math.min(5,Math.floor(reputation/20))))}{'☆'.repeat(Math.max(0,5-Math.floor(reputation/20)))}</span>
         </div>
         <div className="flex flex-col items-end">
           <div className="flex items-center space-x-2">
@@ -1229,14 +1229,14 @@ export default function ServingStation({
       </div>
 
       {/* Main Area */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="flex flex-col gap-2">
         {/* Visual Stage */}
-        <div className="terminal-border p-0 bg-[#0c0c0c] relative min-h-[160px] flex flex-col">
+        <div className="terminal-border p-0 bg-[#0c0c0c] relative flex flex-col">
           <div className="bg-terminal/10 px-2 py-0.5 text-[10px] font-bold border-b border-terminal/30 flex items-center">
             <span>[ LOCATION: {location?.name.toUpperCase()} ({location?.koName}) ]</span>
           </div>
           
-          <div className="flex-1 relative flex flex-col items-center justify-end pb-4 overflow-hidden">
+          <div className="relative flex flex-col items-center justify-end pb-2 overflow-hidden">
             {/* Background Layer */}
             <pre className="ascii-art text-[8px] sm:text-[10px] leading-tight absolute top-4 select-none pointer-events-none opacity-20" style={{ color: 'var(--terminal-color)' }}>
               {location ? LOCATION_BACKGROUNDS[location.id]?.bg : LOCATION_BACKGROUNDS.residence.bg}
@@ -1256,7 +1256,7 @@ export default function ServingStation({
                   fontFamily: "monospace, 'Courier New', Courier", 
                   whiteSpace: 'pre',
                   lineHeight: '1.2',
-                  fontSize: '9px',
+                  fontSize: '8px',
                   color: 'inherit'
                 }}
               >
@@ -1289,7 +1289,7 @@ export default function ServingStation({
               {/* Truck Layer */}
               <div className="mb-0 flex flex-col items-center" style={{ alignSelf: 'flex-end' }}>
                 <pre 
-                  className="ascii-art text-[10px] m-0" 
+                  className="ascii-art text-[8px] m-0" 
                   style={{ 
                     color: truckConfig.color.hex,
                     lineHeight: '1.2',
@@ -1361,7 +1361,7 @@ export default function ServingStation({
         </div>
         
         {/* Order Ticket */}
-        <div className="terminal-border p-4 bg-[#0c0c0c] space-y-3 relative overflow-hidden">
+        <div className="terminal-border p-2 bg-[#0c0c0c] space-y-2 relative overflow-hidden">
           <AnimatePresence>
             {feedback && (
               <motion.div
@@ -1542,7 +1542,7 @@ export default function ServingStation({
                 <div className="flex flex-col gap-2">
                   <button 
                     onClick={() => handleGreeting('FORMAL')} 
-                    className={`px-4 py-2 border text-sm font-bold transition-all text-left flex items-center gap-3 ${
+                    className={`greeting-btn tap-target px-3 py-2 border text-xs font-bold transition-all text-left flex items-center gap-2 ${
                       !hasSeenShopTutorial && customer?.type === 'VIP'
                         ? 'border-yellow-500 bg-yellow-500/20 text-yellow-500 animate-pulse shadow-[0_0_15px_rgba(234,179,8,0.3)] z-10'
                         : 'border-terminal/50 hover:bg-terminal/20'
@@ -1553,7 +1553,7 @@ export default function ServingStation({
                   </button>
                   <button 
                     onClick={() => handleGreeting('POLITE')} 
-                    className={`px-4 py-2 border text-sm font-bold transition-all text-left flex items-center gap-3 ${
+                    className={`greeting-btn tap-target px-3 py-2 border text-xs font-bold transition-all text-left flex items-center gap-2 ${
                       !hasSeenShopTutorial && (customer?.type === 'STUDENT' || customer?.type === 'STANDARD')
                         ? 'border-yellow-500 bg-yellow-500/20 text-yellow-500 animate-pulse shadow-[0_0_15px_rgba(234,179,8,0.3)] z-10'
                         : 'border-terminal/50 hover:bg-terminal/20'
@@ -1564,7 +1564,7 @@ export default function ServingStation({
                   </button>
                   <button 
                     onClick={() => handleGreeting('CASUAL')} 
-                    className={`px-4 py-2 border text-sm font-bold transition-all text-left flex items-center gap-3 ${
+                    className={`greeting-btn tap-target px-3 py-2 border text-xs font-bold transition-all text-left flex items-center gap-2 ${
                       !hasSeenShopTutorial && customer?.type === 'STUDENT'
                         ? 'border-yellow-500 bg-yellow-500/20 text-yellow-500 animate-pulse shadow-[0_0_15px_rgba(234,179,8,0.3)] z-10'
                         : 'border-terminal/50 hover:bg-terminal/20'
@@ -1579,7 +1579,7 @@ export default function ServingStation({
           : servingPhase === 'QUEUE' ?
             <div className="space-y-3 py-2">
               <div className="text-[9px] opacity-50 uppercase">[ ACTIVE ORDERS ] :</div>
-              <div className="flex gap-4">
+              <div className="queue-scroll flex gap-2 pb-1">
                 {orderQueue.map((item, idx) => (
                   <button
                     key={item.instanceId || `queue-item-${idx}-${item.type}`}
@@ -1593,7 +1593,7 @@ export default function ServingStation({
                         setServingPhase('COOKING');
                       }
                     }}
-                    className={`w-24 h-24 border-2 flex flex-col items-center justify-center space-y-2 transition-all relative ${
+                    className={`w-20 h-20 sm:w-24 sm:h-24 border-2 flex flex-col items-center justify-center space-y-1 transition-all relative ${
                       item.isCompleted
                         ? 'border-terminal bg-terminal/20 cursor-default' 
                         : (!item.isCompleted && isStockDepletedForOrder(item))
@@ -1689,7 +1689,7 @@ export default function ServingStation({
                         
                         if (targetIdx !== -1) handleWordAssign(word, targetIdx);
                       }}
-                      className={`px-3 py-2 border text-base flex items-center space-x-2 transition-colors ${
+                      className={`word-tile tap-target border text-sm flex items-center space-x-1 transition-colors ${
                         isEmpty 
                           ? 'border-red-900 text-red-700 cursor-not-allowed pointer-events-none' 
                           : isTutorialHighlight
@@ -1727,12 +1727,12 @@ export default function ServingStation({
                   </button>
                 </div>
               ) : (
-                <div className="flex items-start justify-center gap-2 sm:gap-4 flex-wrap md:flex-nowrap w-full px-2">
+                <div className="flex items-start justify-center gap-1 sm:gap-3 flex-wrap w-full px-1">
                   {[0, 2, 3].map((i) => (
                     <div key={`slot-${i}`} className="flex-1 min-w-[100px] max-w-[180px]">
                       <div className="flex flex-col items-center w-full">
                         <div 
-                          className="w-full h-20 border-[3px] border-terminal/30 bg-[#0c0c0c] flex flex-col items-center justify-center relative transition-all hover:border-terminal/60 cursor-pointer shadow-[0_0_15px_rgba(var(--terminal-color-rgb),0.05)]"
+                          className="slot-box w-full border-[2px] border-terminal/30 bg-[#0c0c0c] flex flex-col items-center justify-center relative transition-all hover:border-terminal/60 cursor-pointer"
                           onClick={() => clearSlot(i)}
                         >
                           {slots[i] ? (
@@ -1786,7 +1786,7 @@ export default function ServingStation({
               <button
                 onClick={checkAutomation}
                 disabled={status === 'RUNNING' || ruinedDish || isProcessingServe}
-                className={`px-6 py-2 border-2 font-bold text-xs tracking-widest transition-all ${
+                className={`w-full py-3 border-2 font-bold text-xs tracking-widest transition-all ${
                   status === 'RUNNING' || ruinedDish || isProcessingServe
                     ? 'border-gray-800 text-gray-500 cursor-not-allowed'
                     : 'border-terminal bg-terminal/10 text-terminal hover:bg-terminal hover:text-black shadow-[0_0_15px_rgba(var(--terminal-color-rgb),0.2)]'
@@ -1796,7 +1796,7 @@ export default function ServingStation({
               </button>
             </div>
 
-            <div className="flex justify-between items-center shrink-0">
+            <div className="flex justify-between items-center gap-2 shrink-0">
               <div className="space-y-1">
                 <div className="text-[8px] opacity-50 uppercase">SYSTEM INPUT (CLICK TO ASSIGN):</div>
                 <div className="flex flex-wrap gap-2">
@@ -1825,7 +1825,7 @@ export default function ServingStation({
                         if (cog.text === '에') idx = 0;
                         if (idx !== -1) handleCogAssign(cog, idx);
                       }}
-                      className={`px-3 py-1.5 border text-base font-bold transition-all ${
+                      className={`tap-target px-3 py-2 border text-sm font-bold transition-all min-w-[48px] ${
                         isTutorialHighlight
                           ? 'border-yellow-500 bg-yellow-500 text-black animate-pulse shadow-[0_0_10px_rgba(234,179,8,0.5)] z-10'
                           : 'border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10'
@@ -1842,7 +1842,7 @@ export default function ServingStation({
       </div>
 
       {/* Bottom Panels */}
-      <div className="relative min-h-[160px]">
+      <div className="relative">
         <AnimatePresence mode="wait">
           {isTutorialSpawnPaused && !customer ? (
             <motion.div 
@@ -1852,7 +1852,7 @@ export default function ServingStation({
               exit={{ opacity: 0, y: -10 }}
               className="bg-yellow-500 text-black p-4 border-2 border-black font-bold text-xs shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-full space-y-3 bg-[linear-gradient(rgba(0,0,0,0.05)_50%,transparent_50%)] bg-[length:100%_2px]"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
                 <div className="space-y-4">
                   <div className="flex items-center gap-4 border-b-2 border-black/20 pb-2">
                     <AlertCircle size={32} className="shrink-0" />
@@ -1904,7 +1904,7 @@ export default function ServingStation({
               exit={{ opacity: 0, y: -10 }}
               className="bg-yellow-500 text-black p-4 border-2 border-black font-bold text-xs shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-full space-y-3 bg-[linear-gradient(rgba(0,0,0,0.05)_50%,transparent_50%)] bg-[length:100%_2px]"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
                 <div className="space-y-4">
                   <div className="flex items-center gap-4 border-b-2 border-black/20 pb-2">
                     <AlertCircle size={32} className="shrink-0" />
@@ -1950,7 +1950,7 @@ export default function ServingStation({
               exit={{ opacity: 0, y: -10 }}
               className="bg-yellow-500 text-black p-4 border-2 border-black font-bold text-xs shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-full space-y-4 bg-[linear-gradient(rgba(0,0,0,0.05)_50%,transparent_50%)] bg-[length:100%_2px]"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
                 <div className="space-y-3">
                   <div className="flex items-center gap-4 border-b-2 border-black/20 pb-2">
                     <AlertCircle size={24} className="shrink-0" />
@@ -1993,7 +1993,7 @@ export default function ServingStation({
               exit={{ opacity: 0, y: -10 }}
               className="bg-yellow-500 text-black p-4 border-2 border-black font-bold text-xs shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-full space-y-4 bg-[linear-gradient(rgba(0,0,0,0.05)_50%,transparent_50%)] bg-[length:100%_2px]"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
                 <div className="space-y-3">
                   <div className="flex items-center gap-4 border-b-2 border-black/20 pb-2">
                     <AlertCircle size={24} className="shrink-0" />
@@ -2036,7 +2036,7 @@ export default function ServingStation({
               exit={{ opacity: 0, y: -10 }}
               className="bg-yellow-500 text-black p-4 border-2 border-black font-bold text-xs shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-full space-y-3 bg-[linear-gradient(rgba(0,0,0,0.05)_50%,transparent_50%)] bg-[length:100%_2px]"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
                 <div className="space-y-3">
                   <div className="flex items-center gap-4 border-b-2 border-black/20 pb-2">
                     <AlertCircle size={24} className="shrink-0" />
@@ -2079,7 +2079,7 @@ export default function ServingStation({
               exit={{ opacity: 0, y: -10 }}
               className="bg-yellow-500 text-black p-4 border-2 border-black font-bold text-xs shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-full space-y-3 bg-[linear-gradient(rgba(0,0,0,0.05)_50%,transparent_50%)] bg-[length:100%_2px]"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
                 <div className="space-y-4">
                   <div className="flex items-center gap-4 border-b-2 border-black/20 pb-2">
                     <AlertCircle size={32} className="shrink-0" />
@@ -2115,7 +2115,7 @@ export default function ServingStation({
               key="bottom-panels"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+              className="flex flex-col gap-2"
             >
               {/* Inventory / Prep */}
               {shiftTutorialStep > 0 && orderQueue.length > 0 && orderQueue.every(i => i.isCompleted) ? (

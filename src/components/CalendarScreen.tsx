@@ -75,7 +75,7 @@ export default function CalendarScreen({ currentDay, history, events, onSleep, o
         </div>
       </div>
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
+      <div className="flex flex-col gap-3 mob-scroll flex-1">
         {/* Left: Calendar Grid */}
         <div className="lg:col-span-2 flex flex-col overflow-hidden">
           <div className="mb-2 flex items-center justify-between">
@@ -104,7 +104,7 @@ export default function CalendarScreen({ currentDay, history, events, onSleep, o
               return (
                 <div 
                   key={dayNum} 
-                  className={`border p-1 flex flex-col min-h-[80px] transition-all ${
+                  className={`border p-1 flex flex-col min-h-[52px] transition-all ${
                     isToday ? 'border-terminal bg-terminal/10 ring-1 ring-terminal' : 
                     isPast ? 'border-terminal/30 bg-black/50' : 
                     'border-terminal/10 opacity-40'

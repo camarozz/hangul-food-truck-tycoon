@@ -260,7 +260,7 @@ export default function RestockStation({
   }, {} as Record<string, number>)).reduce((slots: number, qty: number) => slots + Math.ceil(qty / 20), 0);
 
   return (
-    <div className="flex flex-col h-full bg-black font-mono p-4 border-2 border-terminal shadow-[0_0_20px_rgba(var(--terminal-color-rgb),0.2)] overflow-hidden relative" style={{ color: 'var(--terminal-color)' }}>
+    <div className="flex flex-col h-full bg-black font-mono p-2 border-2 border-terminal relative overflow-hidden" style={{ color: 'var(--terminal-color)' }}>
       {/* Tutorial Modals */}
       <AnimatePresence>
         {showTutorialModal && (
@@ -306,9 +306,9 @@ export default function RestockStation({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-hidden">
+      <div className="flex flex-col gap-3 flex-1 overflow-hidden mob-scroll">
         {/* Left Column: Inventory */}
-        <div className="flex flex-col gap-4 overflow-hidden">
+        <div className="flex flex-col gap-3">
           <section className="border border-terminal p-3 bg-[#001a00] flex-1 flex flex-col overflow-hidden">
             <h3 className="text-xs font-bold mb-2 flex justify-between items-center border-b border-terminal/30 pb-1">
               <span className="flex items-center gap-2">[ CURRENT INVENTORY: {currentTotalSlots}/{inventory.maxStorage} SLOTS ]</span>
@@ -413,7 +413,7 @@ export default function RestockStation({
         </div>
 
         {/* Right Column: Catalog & Order */}
-        <div className="flex flex-col gap-4 overflow-hidden">
+        <div className="flex flex-col gap-3">
           <section className="border border-terminal p-3 flex-1 flex flex-col overflow-hidden">
             <h3 className="text-xs font-bold mb-2 flex items-center gap-2 border-b border-terminal/30 pb-1">
               <Info size={14} /> [ DAILY CATALOG - MARKET PRICES ] 
