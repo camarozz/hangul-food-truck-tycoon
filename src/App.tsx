@@ -1011,7 +1011,7 @@ export default function App() {
   };
 
   return (
-    <div className={`h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden bg-[#0c0c0c] ${gameSettings.crtEffects ? 'crt-enabled' : ''}`}>
+    <div className={`min-h-screen max-w-[896px] mx-auto w-full flex flex-col items-center justify-start p-4 relative bg-[#0c0c0c] ${gameSettings.crtEffects ? 'crt-enabled' : ''}`}>
       {showIntro && <IntroCutscene onComplete={handleIntroComplete} />}
       {isBooting && <SystemBootSequence onComplete={startActualShift} isFastBoot={skipTutorialFlag} truckConfig={truckConfig} />}
       
