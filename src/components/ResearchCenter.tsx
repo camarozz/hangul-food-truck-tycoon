@@ -187,7 +187,7 @@ export default function ResearchCenter({
             return (
               <div 
                 key={upgrade.id} 
-                className={`terminal-border p-3 bg-[#1a1a1a] flex flex-col justify-between items-start space-y-2 relative transition-all ${
+                className={`terminal-border p-3 bg-[#1a1a1a] flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 relative transition-all ${
                   isLocked ? 'opacity-40' : ''
                 } ${
                   isTutorialHighlight ? 'border-yellow-500 bg-yellow-500/20 scale-[1.02] shadow-[0_0_15px_rgba(234,179,8,0.3)] z-10' : ''
@@ -217,14 +217,14 @@ export default function ResearchCenter({
                   )}
                 </div>
 
-                <div className="flex flex-col items-end space-y-2 w-full">
+                <div className="flex flex-col items-end space-y-2 w-full md:w-auto">
                   <div className="text-yellow-400 font-bold text-sm">
                     {upgrade.cost.toLocaleString()}₩ ({toSinoKorean(upgrade.cost)}원)
                   </div>
                   <button
                     disabled={upgrade.unlocked || isLocked}
                     onClick={() => handlePurchase(upgrade)}
-                    className={`px-4 py-3 text-[10px] font-bold w-full tracking-widest transition-all ${
+                    className={`px-4 py-1 text-[10px] font-bold w-full md:w-auto tracking-widest transition-all ${
                       upgrade.unlocked 
                         ? 'bg-gray-800 text-gray-500 cursor-not-allowed' 
                         : isTutorialHighlight
@@ -244,7 +244,7 @@ export default function ResearchCenter({
   };
 
   return (
-    <div className="mob-scroll pr-1 relative flex-1" style={{ color: 'var(--terminal-color)' }}>
+    <div className="max-h-[80vh] overflow-y-auto pr-2 relative" style={{ color: 'var(--terminal-color)' }}>
       {/* Tutorial Modals */}
       <AnimatePresence>
         {showTutorialModal && (

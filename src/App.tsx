@@ -32,7 +32,7 @@ const debounce = (fn: Function, ms = 300) => {
   };
 };
 
-
+const DEVELOPER_EMAIL = 'thuannguyen093@gmail.com';
 
 export const TRUCK_ADJECTIVES: TruckAdjective[] = [
   { id: 'standard', text: '기본', meaning: 'Standard', attraction: { residence: 1.0, park: 1.0 } }
@@ -214,7 +214,7 @@ export default function App() {
     '> LINGUISTICS: Particle Cogs [이/가] [을/를] unlocked.',
     '> TIPS: Native numbers are for items and hours. Sino are for money and minutes.'
   ]);
-
+  const [showDevPanel, setShowDevPanel] = useState(false);
   const [isDeveloper, setIsDeveloper] = useState(() => localStorage.getItem('kbite_dev_mode') === 'true');
   const [devMode, setDevMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -504,7 +504,7 @@ export default function App() {
     }
   };
 
-  // Auto-save on important changes
+  // Auto-save on important changes (Removed user/isAuthReady dependencies)
   useEffect(() => {
     const timeout = setTimeout(() => saveProgress(), 800);
     return () => clearTimeout(timeout);
@@ -516,6 +516,8 @@ export default function App() {
       addLog('MARKET UPDATE: Wholesale Market now offering Premium Meats (Beef)!');
     }
   }, [day, reputation]);
+
+  const isDeveloper = false;
 
   const addLog = (message: string) => {
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -1180,7 +1182,7 @@ export default function App() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-2 left-2 z-[1000] flex items-center gap-2 bg-black/80 border border-terminal text-terminal px-3 py-1 text-xs font-mono rounded-none shadow-[0_0_15px_rgba(0,255,65,0.2)]"
+            className="absolute top-4 left-4 z-[1000] flex items-center gap-2 bg-black/80 border border-terminal text-terminal px-3 py-1 text-xs font-mono rounded-none shadow-[0_0_15px_rgba(0,255,65,0.2)]"
           >
             <span className="inline-block w-3 h-3 border-2 border-terminal border-r-transparent rounded-full animate-spin"></span>
             💾 SAVING…
@@ -1241,7 +1243,7 @@ export default function App() {
               key="alba-modal-content"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="w-full max-w-sm border-2 border-yellow-500 bg-[#0c0c0c] p-6 shadow-[0_0_30px_rgba(234,179,8,0.2)] space-y-6 font-mono"
+              className="w-full max-w-md border-2 border-yellow-500 bg-[#0c0c0c] p-6 shadow-[0_0_30px_rgba(234,179,8,0.2)] space-y-6 font-mono"
             >
               <div className="text-center border-b border-yellow-500/30 pb-4">
                 <h2 className="text-xl font-bold tracking-widest uppercase text-yellow-500">[ ALBA CONTRACT ]</h2>
@@ -1299,16 +1301,16 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4 }}
-            className="text-center space-y-4 w-full px-2"
+            className="text-center space-y-8"
           >
-            <pre className="ascii-art terminal-glow text-[5px] sm:text-[7px] md:text-[9px]" style={{ color: 'var(--terminal-color)' }}>
+            <pre className="ascii-art terminal-glow text-[6px] sm:text-[8px] md:text-[10px] lg:text-xs" style={{ color: 'var(--terminal-color)' }}>
               {LOGO_ASCII}
             </pre>
 
             {/* TRUCK RENDER FIX */}
             <div className="flex flex-col items-center">
               <pre 
-                className="ascii-art text-[6px] sm:text-[7px] md:text-[9px] leading-tight transition-colors duration-500 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)] z-10 opacity-70" 
+                className="ascii-art text-[6px] sm:text-[8px] md:text-[10px] leading-tight transition-colors duration-500 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)] z-10 opacity-70" 
                 style={{ 
                   color: 'var(--terminal-color)',
                   whiteSpace: 'pre', /* Forces strict space rendering */
@@ -1338,7 +1340,7 @@ export default function App() {
               </pre>
             </div>
             
-            <div className="flex flex-col space-y-2 max-w-xs mx-auto w-full px-4">
+            <div className="flex flex-col space-y-4 max-w-xs mx-auto">
               <MenuButton 
                 icon={<Play size={20} />} 
                 label="START SYSTEM" 
@@ -1368,11 +1370,11 @@ export default function App() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className="w-full max-w-full font-mono space-y-0"
+            className="w-full max-w-4xl font-mono space-y-0"
             style={{ color: 'var(--terminal-color)' }}
           >
             {/* Header */}
-            <div className="border-y-2 border-terminal py-1 px-2 flex justify-between items-center bg-terminal/5">
+            <div className="border-y-2 border-terminal py-1 px-4 flex justify-between items-center bg-terminal/5">
               <span className="font-bold tracking-widest">[ K-BITE TYCOON ]  MAIN MENU</span>
               <div className="flex items-center space-x-4">
                 {currentLocation && <span className="text-[10px] text-yellow-500 font-bold tracking-widest">LOC: {currentLocation.koName}</span>}
@@ -1381,7 +1383,7 @@ export default function App() {
             </div>
 
             {/* Stats Bar */}
-            <div className="border-b-2 border-terminal py-1 px-2 grid grid-cols-1 gap-1 text-[9px] sm:text-xs">
+            <div className="border-b-2 border-terminal py-2 px-4 grid grid-cols-2 gap-4 text-[10px] sm:text-xs">
               <div className="space-y-1">
                 <div>FUNDS: {money.toLocaleString()}₩ ({toSinoKorean(money)} 원)</div>
                 <div>REPUTATION: {'★'.repeat(Math.max(0, Math.min(5, Math.floor(reputation/20)))).padEnd(5, '☆')} ({reputation}/100)</div>
@@ -1409,12 +1411,12 @@ export default function App() {
             </div>
 
             {/* Visual Section: Truck Schematic */}
-            <div className="border-b-2 border-terminal px-2 pt-0 pb-2 flex flex-col md:flex-row items-end justify-between relative overflow-hidden bg-black/40 gap-4">
+            <div className="border-b-2 border-terminal px-6 pt-0 pb-4 flex flex-col md:flex-row items-end justify-between relative overflow-hidden bg-black/40 min-h-[200px] gap-8">
               
               {/* Left Side: Truck */}
               <div className="flex flex-col items-center justify-end h-full">
                 <pre 
-                  className="ascii-art text-[6px] sm:text-[9px] md:text-xs leading-tight transition-colors duration-500 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)] z-10 mt-2"
+                  className="ascii-art text-[8px] sm:text-[10px] md:text-xs leading-tight transition-colors duration-500 drop-shadow-[0_0_1px_rgba(255,255,255,0.3)] z-10 mt-2"
                   style={{ color: truckConfig.color?.hex || '#00ff41' }}
                 >
                   {truckAscii.map((line, i) => (
@@ -1517,7 +1519,7 @@ export default function App() {
               <div className="px-4 py-1 border-b border-terminal/30 text-[10px] font-bold uppercase tracking-widest">
                 [ MENU OPTIONS - Select [1-8] or Use Arrow Keys ]
               </div>
-              <div className="p-2 grid grid-cols-1 gap-y-1">
+              <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
                 <MenuOption 
                   index={1} 
                   label={UI_STRINGS.MENU_OPTIONS.openShop.label} 
@@ -1602,7 +1604,7 @@ export default function App() {
               <div className="px-4 py-1 border-b border-terminal/30 text-[10px] font-bold uppercase tracking-widest text-center">
                 [ * * SYSTEM LOGS - Previous Session Summary * * ]
               </div>
-              <div className="p-2 max-h-32 mob-scroll space-y-1 text-[9px] opacity-80">
+              <div className="p-4 h-40 overflow-y-auto space-y-1 text-[10px] opacity-80">
                 <div className="flex space-x-2 text-yellow-500 font-bold">
                   <span>&gt;</span>
                   <span>[ PERSISTENCE CHECK ]: {stats.daysPlayed} Days in operation.</span>
@@ -1656,7 +1658,7 @@ export default function App() {
             animate={{ opacity: 1, x: 0 }} 
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.3 }}
-            className="w-full max-w-full terminal-border p-2 bg-[#111] h-screen overflow-y-auto mob-scroll"
+            className="w-full max-w-4xl terminal-border p-6 bg-[#111]"
           >
             <CityMap 
               currentFuel={gas} 
@@ -1680,7 +1682,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }} 
             exit={{ opacity: 0, y: -30 }} 
             transition={{ duration: 0.35 }}
-            className="w-full max-w-full h-screen terminal-border p-0 bg-[#111] flex flex-col"
+            className="w-full max-w-4xl min-h-screen h-auto terminal-border p-4 pb-8 bg-[#111] flex flex-col"
           >
             <ServingStation 
               money={money} 
@@ -1690,7 +1692,6 @@ export default function App() {
               inventory={inventory}
               truckConfig={truckConfig}
               hasFryer={hasFryer}
-              hasBeverageStation={hasBeverageStation}
               unlockedRecipes={unlockedRecipes}
               activeMenu={activeMenu}
               romanizationEnabled={gameSettings.romanization}
@@ -1718,7 +1719,7 @@ export default function App() {
             animate={{ opacity: 1, scale: 1 }} 
             exit={{ opacity: 0, scale: 0.92 }}
             transition={{ duration: 0.3 }}
-            className="w-full max-w-full h-screen flex flex-col"
+            className="w-full max-w-4xl h-[600px]"
           >
             <KitchenLab 
               inventory={inventory} 
@@ -1739,7 +1740,7 @@ export default function App() {
             animate={{ opacity: 1, scale: 1 }} 
             exit={{ opacity: 0, scale: 0.92 }}
             transition={{ duration: 0.3 }}
-            className="w-full max-w-full terminal-border p-2 bg-[#111] h-screen flex flex-col"
+            className="w-full max-w-4xl terminal-border p-6 bg-[#111]"
           >
             <ResearchCenter 
               currentMoney={money} 
@@ -1761,7 +1762,7 @@ export default function App() {
             animate={{ opacity: 1, x: 0 }} 
             exit={{ opacity: 0, x: 30 }}
             transition={{ duration: 0.3 }}
-            className="w-full max-w-full terminal-border p-2 bg-[#111] h-screen flex flex-col"
+            className="w-full max-w-4xl terminal-border p-6 bg-[#111]"
           >
             <TruckCustomizer 
               money={money}
@@ -1779,7 +1780,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }} 
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.35 }}
-            className="w-full max-w-full terminal-border p-2 bg-[#111] h-screen"
+            className="w-full max-w-4xl terminal-border p-6 bg-[#111]"
           >
             <RestockStation 
               money={money} 
@@ -1804,7 +1805,7 @@ export default function App() {
             animate={{ opacity: 1, scale: 1 }} 
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.4 }}
-            className="w-full max-w-full h-screen flex flex-col"
+            className="w-full max-w-2xl h-[600px]"
           >
             <BailoutScreen 
               money={money}
@@ -1849,7 +1850,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }} 
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.4 }}
-            className="w-full max-w-full h-screen flex flex-col"
+            className="w-full max-w-4xl h-[600px]"
           >
             <CalendarScreen 
               currentDay={day}
@@ -1875,7 +1876,7 @@ export default function App() {
             animate={{ opacity: 1, scale: 1 }} 
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.35 }}
-            className="w-full max-w-full h-screen flex flex-col"
+            className="w-full max-w-2xl h-[500px]"
           >
             <AlbaMiniGame onComplete={handleAlbaComplete} />
           </motion.div>
@@ -1903,7 +1904,7 @@ function MenuOption({ index, label, koLabel, desc, onClick }: { index: number, l
   return (
     <button
       onClick={onClick}
-      className="flex items-start space-x-2 text-left group hover:bg-terminal hover:text-[#0c0c0c] p-2 transition-colors tap-target"
+      className="flex items-start space-x-2 text-left group hover:bg-terminal hover:text-[#0c0c0c] p-1 transition-colors"
     >
       <span className="font-bold min-w-[20px]">{index}.</span>
       <div className="flex-1">
@@ -1921,7 +1922,7 @@ function MenuButton({ icon, label, onClick }: { icon: React.ReactNode, label: st
   return (
     <button
       onClick={onClick}
-      className="flex items-center justify-center space-x-3 p-3 terminal-border hover:bg-terminal hover:text-[#0c0c0c] transition-all group tap-target"
+      className="flex items-center justify-center space-x-3 p-4 terminal-border hover:bg-terminal hover:text-[#0c0c0c] transition-all group"
     >
       <span className="group-hover:scale-110 transition-transform">{icon}</span>
       <span className="font-bold tracking-[0.2em] text-sm">{label}</span>
@@ -1929,3 +1930,26 @@ function MenuButton({ icon, label, onClick }: { icon: React.ReactNode, label: st
   );
 }
 
+function ActionButton({ icon, label, onClick }: { icon?: React.ReactNode, label: string, onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center justify-center space-x-2 p-3 bg-[#1a1a1a] border border-terminal/20 hover:border-terminal hover:bg-terminal/5 transition-all text-xs font-bold tracking-wider"
+    >
+      {icon && <span className="opacity-70">{icon}</span>}
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function DevToolButton({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center space-x-2 p-2 border border-terminal/30 hover:bg-terminal/10 text-[10px] font-mono transition-all"
+    >
+      <span style={{ color: 'var(--terminal-color)' }}>{icon}</span>
+      <span>{label}</span>
+    </button>
+  );
+}

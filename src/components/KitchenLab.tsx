@@ -271,11 +271,11 @@ export default function KitchenLab({
               <h2 className="text-sm font-bold uppercase tracking-widest">Recipe Database</h2>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 mob-scroll pr-1 pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto pr-2 pb-4">
               
               {/* Embedded Tutorial Messages */}
               {isTutorialActive && tutorialStep === 1 && (
-                <div className="col-span-1 border-2 border-yellow-500 bg-yellow-500/10 p-4 shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-start gap-3">
+                <div className="col-span-1 md:col-span-2 border-2 border-yellow-500 bg-yellow-500/10 p-4 shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-start gap-3">
                   <AlertCircle size={20} className="text-yellow-500 shrink-0 mt-0.5" />
                   <div className="space-y-2 w-full">
                     <h3 className="text-xs font-bold text-yellow-500 uppercase tracking-widest border-b border-yellow-500/30 pb-1">-- SYSTEM MESSAGE --</h3>
@@ -286,7 +286,7 @@ export default function KitchenLab({
                 </div>
               )}
               {isTutorialActive && tutorialStep === 2 && (
-                <div className="col-span-1 border-2 border-yellow-500 bg-yellow-500/10 p-4 shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-start gap-3">
+                <div className="col-span-1 md:col-span-2 border-2 border-yellow-500 bg-yellow-500/10 p-4 shadow-[0_0_15px_rgba(234,179,8,0.2)] flex items-start gap-3">
                   <AlertCircle size={20} className="text-yellow-500 shrink-0 mt-0.5" />
                   <div className="space-y-2 w-full">
                     <h3 className="text-xs font-bold text-yellow-500 uppercase tracking-widest border-b border-yellow-500/30 pb-1">-- SYSTEM MESSAGE --</h3>
@@ -380,7 +380,7 @@ export default function KitchenLab({
           </div>
         ) : (
           <div className="flex-1 flex flex-col p-6 overflow-hidden" onClick={handleContainerClick}>
-            <div className="flex flex-col gap-3 flex-1 mob-scroll">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 overflow-hidden">
               {/* Left Column: Raw Materials */}
               <div className="flex flex-col h-full gap-4 overflow-hidden">
                 <section className="border border-terminal/30 p-4 bg-terminal/5 shrink-0">
