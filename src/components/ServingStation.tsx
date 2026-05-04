@@ -120,6 +120,7 @@ export default function ServingStation({
   inventory,
   truckConfig,
   hasFryer,
+  hasBeverageStation,
   unlockedRecipes,
   activeMenu,
   romanizationEnabled,
@@ -144,6 +145,7 @@ export default function ServingStation({
   inventory: Inventory,
   truckConfig: TruckConfig,
   hasFryer: boolean,
+  hasBeverageStation: boolean,
   unlockedRecipes: string[],
   activeMenu: string[],
   romanizationEnabled: boolean,
@@ -1129,7 +1131,7 @@ export default function ServingStation({
   const handleTransmitData = () => {
     setIsShiftSummaryOpen(false);
 
-    // Final save to parent / Firebase
+    // Final save to parent
     onComplete(
       totalEarned.current,
       totalRep.current,
@@ -1639,6 +1641,7 @@ export default function ServingStation({
                   
                   // Rule A: Only render if unlocked
                   if ((w.text === '튀김기' || w.text === '감자' || w.text === '튀기다') && !hasFryer) return false;
+                  if ((w.text === '탄산음료' || w.text === '주스' || w.text === '컵' || w.text === '따르다') && !hasBeverageStation) return false;
                   if (w.text === '치즈' && !unlockedRecipes.includes('cheeseburger')) return false;
                   if (w.text === '김치' && !unlockedRecipes.includes('kimchiburger')) return false;
                   
