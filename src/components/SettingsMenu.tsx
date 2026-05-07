@@ -20,6 +20,7 @@ interface SettingsMenuProps {
     themeColor: ThemeColor;
     isColorSettingUnlocked: boolean;
     unlockedThemes: ThemeColor[];
+    sovAssist: boolean;
   };
   onUpdate: (newSettings: any) => void;
   onResetData: () => void;
@@ -253,6 +254,28 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose, settings, onUpdate
                 </div>
                 <p className="text-[10px] opacity-60 leading-tight">
                   Toggle English pronunciation hints. Turn OFF to challenge your Hangul reading skills.
+                </p>
+              </section>
+
+              {/* SOV Assist */}
+              <section className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Languages size={18} className="text-yellow-500" />
+                    <span className="text-sm font-bold uppercase">SOV Assist Placement</span>
+                  </div>
+                  <button
+                    onClick={() => onUpdate({ ...settings, sovAssist: !settings.sovAssist })}
+                    className={`w-12 h-6 border-2 border-terminal relative transition-colors ${settings.sovAssist ? 'bg-terminal/20' : 'bg-transparent'}`}
+                  >
+                    <motion.div
+                      animate={{ x: settings.sovAssist ? 24 : 0 }}
+                      className="absolute top-0.5 left-0.5 w-4 h-4 bg-terminal"
+                    />
+                  </button>
+                </div>
+                <p className="text-[10px] opacity-60 leading-tight">
+                  When ON, clicking a word auto-places it in the correct slot. Turn OFF to manually drag words into any slot — for a harder challenge.
                 </p>
               </section>
 

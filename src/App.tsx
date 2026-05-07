@@ -229,7 +229,8 @@ export default function App() {
     sfxVolume: 70,
     themeColor: 'GREEN' as ThemeColor,
     isColorSettingUnlocked: false,
-    unlockedThemes: ['GREEN', 'AMBER', 'CYAN', 'MONOCHROME'] as ThemeColor[]
+    unlockedThemes: ['GREEN', 'AMBER', 'CYAN', 'MONOCHROME'] as ThemeColor[],
+    sovAssist: true,
   });
 
   const [stats, setStats] = useState({
@@ -1692,6 +1693,7 @@ export default function App() {
               unlockedRecipes={unlockedRecipes}
               activeMenu={activeMenu}
               romanizationEnabled={gameSettings.romanization}
+              sovAssist={gameSettings.sovAssist}
               hasSeenShopTutorial={hasSeenShopTutorial}
               isColorSettingUnlocked={gameSettings.isColorSettingUnlocked}
               customer={customer}

@@ -124,6 +124,7 @@ export default function ServingStation({
   unlockedRecipes,
   activeMenu,
   romanizationEnabled,
+  sovAssist,
   hasSeenShopTutorial,
   isColorSettingUnlocked,
   customer,
@@ -149,6 +150,7 @@ export default function ServingStation({
   unlockedRecipes: string[],
   activeMenu: string[],
   romanizationEnabled: boolean,
+  sovAssist: boolean,
   hasSeenShopTutorial: boolean,
   isColorSettingUnlocked: boolean,
   customer: Customer | null,
@@ -165,6 +167,8 @@ export default function ServingStation({
 }) {
   const [slots, setSlots] = useState<(Word | null)[]>([null, null, null, null]);
   const [cogs, setCogs] = useState<(Word | null)[]>([null, null, null, null]);
+  const [selectedWord, setSelectedWord] = useState<Word | null>(null);
+  const [selectedCog, setSelectedCog] = useState<Word | null>(null);
   const [status, setStatus] = useState<'IDLE' | 'RUNNING' | 'SUCCESS' | 'FAILURE'>('IDLE');
   const [feedback, setFeedback] = useState<{ message: string, type: 'error' | 'success' } | null>(null);
   const [vibeCheck, setVibeCheck] = useState<{ stars: number, dialogue: string, ascii: string, tip: number, speed: 'SLOW' | 'FAST' } | null>(null);
@@ -187,6 +191,8 @@ export default function ServingStation({
   const resetEngine = useCallback(() => {
     setSlots([null, null, null, null]);
     setCogs([null, null, null, null]);
+    setSelectedWord(null);
+    setSelectedCog(null);
     setStatus('IDLE');
     setFeedback(null);
     setRuinedDish(false);
@@ -801,6 +807,7 @@ export default function ServingStation({
     const newSlots = [...slots];
     newSlots[index] = word;
     setSlots(newSlots);
+    setSelectedWord(null);
   };
 
   const handleCogAssign = (cog: Word, index: number) => {
@@ -812,6 +819,66 @@ export default function ServingStation({
     const newCogs = [...cogs];
     newCogs[index] = cog;
     setCogs(newCogs);
+    setSelectedCog(null);
+  };
+
+  // Called when a word tile in the palette is clicked
+  const handleWordTileClick = (word: Word) => {
+    if (sovAssist) {
+      // Original behaviour: auto-route to the correct slot
+      let targetIdx = -1;
+      if (word.type === 'location') targetIdx = 0;
+      if (word.type === 'object')   targetIdx = 2;
+      if (word.type === 'verb')     targetIdx = 3;
+      if (targetIdx !== -1) handleWordAssign(word, targetIdx);
+    } else {
+      // Manual mode: select/deselect the word; slot boxes handle placement
+      setSelectedWord(prev => (prev?.id === word.id ? null : word));
+      setSelectedCog(null); // deselect any cog when a word is picked
+    }
+  };
+
+  // Called when a cog tile in the particle palette is clicked
+  const handleCogTileClick = (cog: Word) => {
+    if (sovAssist) {
+      let idx = -1;
+      if (cog.text === '에서') idx = 0;
+      if (cog.text === '를')  idx = 2;
+      if (cog.text === '에')  idx = 0;
+      if (idx !== -1) handleCogAssign(cog, idx);
+    } else {
+      setSelectedCog(prev => (prev?.id === cog.id ? null : cog));
+      setSelectedWord(null); // deselect any word when a cog is picked
+    }
+  };
+
+  // Called when a main slot box is clicked
+  const handleSlotClick = (e: React.MouseEvent, slotIndex: number) => {
+    e.stopPropagation();
+    if (slotIndex === 1) return;
+
+    if (!sovAssist && selectedWord) {
+      // Manual mode: place the selected word into whichever slot was clicked
+      handleWordAssign(selectedWord, slotIndex);
+      return;
+    }
+    // Default (auto mode, or manual with nothing selected): clicking clears the slot
+    clearSlot(slotIndex);
+  };
+
+  // Called when a cog snap-point is clicked
+  const handleCogSlotClick = (e: React.MouseEvent, slotIndex: number) => {
+    e.stopPropagation();
+    if (slotIndex === 1) return;
+
+    if (!sovAssist && selectedCog) {
+      handleCogAssign(selectedCog, slotIndex);
+      return;
+    }
+    // Default: clicking clears the cog
+    const n = [...cogs];
+    n[slotIndex] = null;
+    setCogs(n);
   };
 
   const clearSlot = (index: number) => {
@@ -831,6 +898,8 @@ export default function ServingStation({
     // ALWAYS clear slots on success so the next item starts fresh
     setSlots([null, null, null, null]);
     setCogs([null, null, null, null]);
+    setSelectedWord(null);
+    setSelectedCog(null);
 
     // Clear the success overlay so the player can see the ticket and patience bar again
     setTimeout(() => {
@@ -1681,20 +1750,15 @@ export default function ServingStation({
                     <button
                       key={`word-${word.id}`}
                       disabled={isEmpty}
-                      onClick={() => {
-                        let targetIdx = -1;
-                        if (word.type === 'location') targetIdx = 0;
-                        if (word.type === 'object') targetIdx = 2;
-                        if (word.type === 'verb') targetIdx = 3;
-                        
-                        if (targetIdx !== -1) handleWordAssign(word, targetIdx);
-                      }}
+                      onClick={(e) => { e.stopPropagation(); handleWordTileClick(word); }}
                       className={`px-3 py-2 border text-base flex items-center space-x-2 transition-colors ${
                         isEmpty 
                           ? 'border-red-900 text-red-700 cursor-not-allowed pointer-events-none' 
-                          : isTutorialHighlight
-                            ? 'border-yellow-500 bg-yellow-500/20 animate-pulse shadow-[0_0_10px_rgba(234,179,8,0.3)] z-10'
-                            : 'border-terminal/30 hover:bg-terminal/10'
+                          : !sovAssist && selectedWord?.id === word.id
+                            ? 'border-terminal bg-terminal/30 shadow-[0_0_10px_rgba(var(--terminal-color-rgb),0.4)]'
+                            : isTutorialHighlight
+                              ? 'border-yellow-500 bg-yellow-500/20 animate-pulse shadow-[0_0_10px_rgba(234,179,8,0.3)] z-10'
+                              : 'border-terminal/30 hover:bg-terminal/10'
                       }`}
                     >
                       <span className="font-bold">
@@ -1732,8 +1796,14 @@ export default function ServingStation({
                     <div key={`slot-${i}`} className="flex-1 min-w-[100px] max-w-[180px]">
                       <div className="flex flex-col items-center w-full">
                         <div 
-                          className="w-full h-20 border-[3px] border-terminal/30 bg-[#0c0c0c] flex flex-col items-center justify-center relative transition-all hover:border-terminal/60 cursor-pointer shadow-[0_0_15px_rgba(var(--terminal-color-rgb),0.05)]"
-                          onClick={() => clearSlot(i)}
+                          className={`w-full h-20 border-[3px] bg-[#0c0c0c] flex flex-col items-center justify-center relative transition-all cursor-pointer shadow-[0_0_15px_rgba(var(--terminal-color-rgb),0.05)] ${
+                            !sovAssist && selectedWord && !slots[i]
+                              ? 'border-terminal animate-pulse shadow-[0_0_12px_rgba(var(--terminal-color-rgb),0.3)]'
+                              : !sovAssist && selectedCog && slots[i] && !cogs[i]
+                                ? 'border-yellow-400/60'
+                                : 'border-terminal/30 hover:border-terminal/60'
+                          }`}
+                          onClick={(e) => handleSlotClick(e, i)}
                         >
                           {slots[i] ? (
                             <div className="flex flex-col items-center justify-center">
@@ -1753,8 +1823,12 @@ export default function ServingStation({
                             <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center">
                               <div className="h-3 w-0.5 bg-terminal/40" />
                               <div 
-                                className="w-12 h-6 border-2 border-yellow-500/40 bg-[#0c0c0c] rounded-sm flex items-center justify-center hover:border-yellow-500 cursor-pointer shadow-lg"
-                                onClick={(e) => { e.stopPropagation(); const n = [...cogs]; n[i] = null; setCogs(n); }}
+                                className={`w-12 h-6 border-2 bg-[#0c0c0c] rounded-sm flex items-center justify-center cursor-pointer shadow-lg transition-colors ${
+                                  !sovAssist && selectedCog && !cogs[i]
+                                    ? 'border-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.4)]'
+                                    : 'border-yellow-500/40 hover:border-yellow-500'
+                                }`}
+                                onClick={(e) => handleCogSlotClick(e, i)}
                               >
                                 {cogs[i] ? (
                                   <span className="text-[9px] font-bold text-yellow-500">{cogs[i]?.text}</span>
@@ -1798,7 +1872,9 @@ export default function ServingStation({
 
             <div className="flex justify-between items-center shrink-0">
               <div className="space-y-1">
-                <div className="text-[8px] opacity-50 uppercase">SYSTEM INPUT (CLICK TO ASSIGN):</div>
+                <div className="text-[8px] opacity-50 uppercase">
+                  {sovAssist ? 'SYSTEM INPUT (CLICK TO ASSIGN):' : `SYSTEM INPUT (${selectedWord ? `[${selectedWord.text}] SELECTED — CLICK A SLOT` : selectedCog ? `[${selectedCog.text}] SELECTED — CLICK A COG` : 'SELECT WORD, THEN CLICK SLOT'}):`}
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {ENGINE_WORDS.filter(w => {
                     if (w.type !== 'particle') return false;
@@ -1818,17 +1894,13 @@ export default function ServingStation({
                     return (
                     <button
                       key={`cog-${cog.id}`}
-                      onClick={() => {
-                        let idx = -1;
-                        if (cog.text === '에서') idx = 0;
-                        if (cog.text === '를') idx = 2;
-                        if (cog.text === '에') idx = 0;
-                        if (idx !== -1) handleCogAssign(cog, idx);
-                      }}
+                      onClick={(e) => { e.stopPropagation(); handleCogTileClick(cog); }}
                       className={`px-3 py-1.5 border text-base font-bold transition-all ${
-                        isTutorialHighlight
-                          ? 'border-yellow-500 bg-yellow-500 text-black animate-pulse shadow-[0_0_10px_rgba(234,179,8,0.5)] z-10'
-                          : 'border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10'
+                        !sovAssist && selectedCog?.id === cog.id
+                          ? 'border-yellow-400 bg-yellow-400/20 text-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.4)]'
+                          : isTutorialHighlight
+                            ? 'border-yellow-500 bg-yellow-500 text-black animate-pulse shadow-[0_0_10px_rgba(234,179,8,0.5)] z-10'
+                            : 'border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10'
                       }`}
                     >
                       [{cog.text}]
