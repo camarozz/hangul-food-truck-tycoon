@@ -1,20 +1,15 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# K-BITE Tycoon 🍔🚐
 
-# Run and deploy your AI Studio app
+**K-BITE Tycoon** is a fast-paced, time-management food truck simulation game built with React and TypeScript. Start with a tiny cart and build a street-food empire by managing inventory, balancing the daily market economy, and keeping up with the relentless lunch rush!
 
-This contains everything you need to run your app locally.
+### 🎮 Play the Game Live
+**[Play K-BITE Tycoon Here!](https://hangul-food-truck-tycoon.vercel.app/)** *(Note: Game progress is automatically saved to local storage).*
 
-View your app in AI Studio: https://ai.studio/apps/418d6802-3aaf-40a7-bc6e-75a780a6f582
+---
 
-## Run Locally
+## 🛠️ Tech Stack
+* **Frontend:** React, TypeScript, Vite
+* **Backend/Database:** Firebase (Firestore & Authentication)
+* **Hosting/Deployment:** Vercel
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+---

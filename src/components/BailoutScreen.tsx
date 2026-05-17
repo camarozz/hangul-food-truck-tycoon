@@ -9,15 +9,21 @@ import { AlertTriangle, FileText, PenTool, Skull } from 'lucide-react';
 import { toSinoKorean, toNativeKorean, LoanType, Word } from '../types';
 import { audio } from '../audioManager';
 
-interface BailoutScreenProps {
-  money: number;
-  loanType: LoanType;
-  romanizationEnabled: boolean;
-  onAccept: () => void;
-  onGameOver: () => void;
-}
+import { useGame } from '../context/GameContext';
 
-export default function BailoutScreen({ money, loanType, romanizationEnabled, onAccept, onGameOver }: BailoutScreenProps) {
+interface BailoutScreenProps {}
+
+export default function BailoutScreen(_props: BailoutScreenProps) {
+  const {
+    money,
+    loanStrike,
+    gameSettings,
+    handleBailoutAccept: onAccept,
+    setGameScreen,
+  } = useGame();
+  const loanType = loanStrike === 0 ? 'BANK' : 'SHARK' as import('../types').LoanType;
+  const romanizationEnabled = gameSettings.romanization;
+  const onGameOver = () => setGameScreen('GAME_OVER');
   const [signature, setSignature] = useState('');
   const [error, setError] = useState(false);
   
@@ -152,7 +158,7 @@ export default function BailoutScreen({ money, loanType, romanizationEnabled, on
                     <input 
                       type="text"
                       value={signature}
-                      onChange={(e) => setSignature(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSignature(e.target.value)}
                       className={`bg-black border-b-2 ${error ? 'border-red-500 animate-shake' : 'border-terminal'} outline-none px-2 py-1 w-32 text-center font-bold tracking-widest`}
                       placeholder="[ 동의 ]"
                     />

@@ -8,15 +8,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Timer, CheckCircle2, XCircle, UtensilsCrossed } from 'lucide-react';
 import { NATIVE_NUMBERS, SINO_NUMBERS, toSinoKorean, toNativeKorean } from '../types';
 import { audio } from '../audioManager';
-
-interface AlbaMiniGameProps {
-  onComplete: (earned: number) => void;
-}
+import { useGame } from '../context/GameContext';
 
 const GAME_DURATION = 30; // seconds
 const TARGET_SCORE = 10;
 
-export default function AlbaMiniGame({ onComplete }: AlbaMiniGameProps) {
+export default function AlbaMiniGame() {
+  const { handleAlbaComplete: onComplete } = useGame();
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [currentOrder, setCurrentOrder] = useState<{ native: string, value: number } | null>(null);
@@ -27,18 +25,18 @@ export default function AlbaMiniGame({ onComplete }: AlbaMiniGameProps) {
   const generateRound = useCallback(() => {
     // Ensure strictly 1-19
     const val = Math.floor(Math.random() * 19) + 1;
-    
+
     // Use helper function instead of direct array access to handle 11-19
     // Add fallback to "하나" if somehow undefined
     const native = toNativeKorean(val) || "하나";
-    
+
     // Generate 4 options
     const opts = [val];
     while (opts.length < 4) {
       const o = Math.floor(Math.random() * 19) + 1;
       if (!opts.includes(o)) opts.push(o);
     }
-    
+
     setCurrentOrder({ native, value: val });
     setOptions(opts.sort(() => Math.random() - 0.5));
   }, []);
@@ -49,7 +47,7 @@ export default function AlbaMiniGame({ onComplete }: AlbaMiniGameProps) {
 
   useEffect(() => {
     if (timeLeft > 0 && !isGameOver) {
-      const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
+      const timer = setInterval(() => setTimeLeft((t: number) => t - 1), 1000);
       return () => clearInterval(timer);
     } else if (timeLeft === 0) {
       setIsGameOver(true);
@@ -61,7 +59,7 @@ export default function AlbaMiniGame({ onComplete }: AlbaMiniGameProps) {
 
     if (val === currentOrder?.value) {
       audio.playSFX('SUCCESS_CHIME');
-      setScore(s => s + 1);
+      setScore((s: number) => s + 1);
       setFeedback('CORRECT');
     } else {
       audio.playSFX('UI_ERROR');
@@ -77,7 +75,7 @@ export default function AlbaMiniGame({ onComplete }: AlbaMiniGameProps) {
   const handleFinish = () => {
     if (score > 0) audio.playSFX('CASH_REGISTER');
     else audio.playSFX('UI_ERROR');
-    
+
     const payout = score * 1000;
     onComplete(payout);
   };
@@ -99,7 +97,7 @@ export default function AlbaMiniGame({ onComplete }: AlbaMiniGameProps) {
         <div className="flex-1 flex flex-col items-center justify-center space-y-12">
           <div className="text-center space-y-4">
             <h2 className="text-xs opacity-60 uppercase tracking-widest">Customer Order (Native Korean)</h2>
-            <motion.div 
+            <motion.div
               key={currentOrder?.native}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -110,7 +108,7 @@ export default function AlbaMiniGame({ onComplete }: AlbaMiniGameProps) {
           </div>
 
           <div className="grid grid-cols-2 gap-4 w-full max-w-md">
-            {options.map((val) => (
+            {options.map((val: number) => (
               <button
                 key={val}
                 onClick={() => handleChoice(val)}
@@ -122,10 +120,10 @@ export default function AlbaMiniGame({ onComplete }: AlbaMiniGameProps) {
                 <div className="text-[10px] opacity-40 uppercase">
                   {toSinoKorean(val * 1000)} 원
                 </div>
-                
+
                 <AnimatePresence>
                   {feedback && val === currentOrder?.value && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                       className="absolute inset-0 bg-green-500/20 flex items-center justify-center"
                     >
@@ -133,7 +131,7 @@ export default function AlbaMiniGame({ onComplete }: AlbaMiniGameProps) {
                     </motion.div>
                   )}
                   {feedback === 'WRONG' && val !== currentOrder?.value && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                       className="absolute inset-0 bg-red-500/20 flex items-center justify-center"
                     >

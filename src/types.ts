@@ -27,6 +27,66 @@ export interface DayHistory {
   clear: boolean;
 }
 
+/**
+ * Shape of the JSON blob written to / read from localStorage.
+ * All fields are optional — a save may be partial or from an older version.
+ */
+export interface SaveData {
+  money?: number;
+  reputation?: number;
+  day?: number;
+  gas?: number;
+  dishesMastered?: number;
+  permits?: string[];
+  unlockedUpgrades?: string[];
+  inventory?: {
+    batches: InventoryBatch[];
+    maxStorage: number;
+    shelfLifeModifier: number;
+  };
+  truckConfig?: {
+    adjective?: TruckAdjective;
+    color?: TruckColor;
+    signboard?: string;
+    prop?: TruckProp;
+    window?: TruckWindow;
+    wheel?: TruckWheel;
+    grill?: TruckGrill;
+    underglow?: TruckUnderglow;
+    hasDoubleTires?: boolean;
+  };
+  activeLoan?: Loan | null;
+  loanStrike?: number;
+  history?: DayHistory[];
+  unlockedRecipes?: string[];
+  activeMenu?: string[];
+  /** Stored as a plain object; spread over default settings on load */
+  gameSettings?: {
+    romanization?: boolean;
+    crtEffects?: boolean;
+    phosphorFlash?: boolean;
+    bgmVolume?: number;
+    sfxVolume?: number;
+    themeColor?: ThemeColor;
+    isColorSettingUnlocked?: boolean;
+    unlockedThemes?: ThemeColor[];
+    autoSOV?: boolean;
+  };
+  stats?: {
+    wrongParticles?: number;
+    loanSharkPaid?: boolean;
+    maxDailyProfit?: number;
+    universityPerfectStreak?: number;
+    lifetimeRevenue?: number;
+    daysPlayed?: number;
+  };
+  hasSeenResearchTutorial?: boolean;
+  hasSeenKitchenTutorial?: boolean;
+  hasSeenMarketTutorial?: boolean;
+  hasSeenShopTutorial?: boolean;
+  lastUpdated?: string;
+}
+
 export interface UnlockNotification {
   milestone: string;
   reward: string;
@@ -77,17 +137,7 @@ export interface Customer {
   name: string;
   type: 'STUDENT' | 'STANDARD' | 'VIP';
   order: string;
-  targetItems: { 
-    type: string, 
-    completed: boolean, 
-    isCompleted?: boolean, 
-    cookedResult?: string | null,
-    visual?: string,
-    icon?: string,
-    instanceId?: string,
-    recipe?: Record<string, number>,
-    modifier?: string
-  }[];
+  targetItems: OrderQueueItem[];
   count: number;
   picky: boolean;
   modifiers: string[];
@@ -95,6 +145,48 @@ export interface Customer {
   rawOrder: string;
   politenessRequired: PolitenessLevel;
   ticketId: number;
+}
+
+/** A single item in the active order queue / Customer.targetItems */
+export interface OrderQueueItem {
+  type: string;          // recipe id: 'burger', 'fries', 'soda', etc.
+  name: string;          // display name (Korean)
+  icon: string;          // emoji icon
+  visual: string;        // ascii visual e.g. [🍔]
+  recipe: Record<string, number>; // ingredient id → quantity required
+  completed: boolean;
+  isCompleted: boolean;
+  cookedResult: string | null;
+  modifier: string;      // e.g. '양파 추가', '매운 소스 추가', ''
+  instanceId: string;    // unique per item per spawn
+  itemId?: string;       // legacy alias kept for backwards compatibility
+}
+
+/** Stats accumulated during a single serving shift */
+export interface ShiftStats {
+  served: number;
+  perfect: number;
+  trashed: number;
+  moneyEarned: number;
+  repEarned: number;
+  tips: number;
+}
+
+/** A raw entry from the MARKET_CATALOG constant (no currentPrice yet) */
+export interface MarketCatalogEntry {
+  id: string;
+  name: string;
+  koName: string;
+  unit: string;
+  counter: string;
+  basePrice: number;
+  type: 'DRY' | 'FRESH';
+  shelfLife: number;
+}
+
+/** A catalog entry with a runtime price applied */
+export interface MarketItem extends MarketCatalogEntry {
+  currentPrice: number;
 }
 
 export interface Upgrade {
@@ -233,64 +325,64 @@ export function toSinoKorean(num: number): string {
   const chun = Math.floor(remainder / 1000);
   remainder %= 1000;
   if (chun > 0) {
-    if (chun > 1) result += SINO_NUMBERS[chun];
+    if (chun > 1) result += SINO_NUMBERS[chun]!;
     result += '천';
   }
 
   const baek = Math.floor(remainder / 100);
   remainder %= 100;
   if (baek > 0) {
-    if (baek > 1) result += SINO_NUMBERS[baek];
+    if (baek > 1) result += SINO_NUMBERS[baek]!;
     result += '백';
   }
 
   const sip = Math.floor(remainder / 10);
   remainder %= 10;
   if (sip > 0) {
-    if (sip > 1) result += SINO_NUMBERS[sip];
+    if (sip > 1) result += SINO_NUMBERS[sip]!;
     result += '십';
   }
 
   if (remainder > 0) {
-    result += SINO_NUMBERS[remainder];
+    result += SINO_NUMBERS[remainder]!;
   }
 
   return result;
 }
 
 export function toNativeKorean(num: number): string {
-  if (num === 0) return NATIVE_NUMBERS[0];
-  if (NATIVE_NUMBERS[num]) return NATIVE_NUMBERS[num];
-  
+  if (num === 0) return NATIVE_NUMBERS[0]!;
+  if (NATIVE_NUMBERS[num]) return NATIVE_NUMBERS[num]!;
+
   const tens = Math.floor(num / 10) * 10;
   const ones = num % 10;
-  
+
   if (tens > 0 && ones > 0 && NATIVE_NUMBERS[tens]) {
-    return NATIVE_NUMBERS[tens] + NATIVE_NUMBERS[ones];
+    return NATIVE_NUMBERS[tens]! + NATIVE_NUMBERS[ones]!;
   }
-  
+
   return num.toString();
 }
 
 export function formatKoreanTime(minutes: number): string {
   const h = Math.floor(minutes / 60) % 24;
   const m = minutes % 60;
-  
+
   const hourNative = toNativeKorean(h === 0 ? 12 : h > 12 ? h - 12 : h);
   const minuteSino = toSinoKorean(m);
-  
+
   return `${hourNative} 시 ${minuteSino} 분`;
 }
 
 export function formatKoreanTimeWithHint(minutes: number): string {
   const h = Math.floor(minutes / 60) % 24;
   const m = minutes % 60;
-  
+
   const hourNative = toNativeKorean(h === 0 ? 12 : h > 12 ? h - 12 : h);
   const minuteSino = toSinoKorean(m);
-  
+
   const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
   const displayM = m.toString().padStart(2, '0');
-  
+
   return `${displayH}:${displayM} (Native Hour: ${hourNative} 시 / Sino Minute: ${minuteSino} 분)`;
 }

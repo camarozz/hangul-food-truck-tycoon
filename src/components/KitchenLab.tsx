@@ -7,16 +7,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Beaker, FlaskConical, Zap, CheckCircle2, AlertCircle, Keyboard, ChevronRight, BookOpen } from 'lucide-react';
 import { Recipe, Inventory } from '../types';
+import { useGame } from '../context/GameContext';
 
-interface KitchenLabProps {
-  inventory: Inventory;
-  unlockedRecipes: string[];
-  romanizationEnabled: boolean;
-  onUnlockRecipe: (recipeId: string) => void;
-  onCancel: () => void;
-  hasSeenTutorial: boolean;
-  onCompleteTutorial: () => void;
-}
 
 const RECIPE_DATABASE: Recipe[] = [
   {
@@ -116,15 +108,19 @@ const RECIPE_DATABASE: Recipe[] = [
   }
 ];
 
-export default function KitchenLab({ 
-  inventory, 
-  unlockedRecipes, 
-  romanizationEnabled, 
-  onUnlockRecipe, 
-  onCancel,
-  hasSeenTutorial,
-  onCompleteTutorial
-}: KitchenLabProps) {
+export default function KitchenLab({ onCancel }: { onCancel: () => void }) {
+  const {
+    inventory,
+    unlockedRecipes,
+    gameSettings,
+    hasSeenKitchenTutorial,
+    setHasSeenKitchenTutorial,
+    handleUnlockRecipe,
+  } = useGame();
+  const romanizationEnabled = gameSettings.romanization;
+  const hasSeenTutorial = hasSeenKitchenTutorial;
+  const onUnlockRecipe = handleUnlockRecipe;
+  const onCompleteTutorial = () => setHasSeenKitchenTutorial(true);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [step, setStep] = useState<'SELECT' | 'SYNTHESIZE'>('SELECT');
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -161,7 +157,7 @@ export default function KitchenLab({
     const val = e.target.value;
     setInputValue(val);
 
-    if (val === currentTarget.koName) {
+    if (currentTarget && val === currentTarget.koName) {
       setFeedback({ message: 'CORRECT! COMPONENT SYNTHESIZED.', type: 'success' });
       setTimeout(() => {
         if (currentStepIndex < allSteps.length - 1) {
@@ -496,7 +492,7 @@ export default function KitchenLab({
                         </div>
                         {romanizationEnabled && (
                           <div className={`text-[10px] font-bold transition-all ${isTutorialActive && tutorialStep === 1 ? 'text-yellow-500 bg-yellow-500/20 px-2 py-1 border border-yellow-500/50 animate-pulse' : 'text-yellow-500'}`}>
-                            QWERTY HINT: type {currentTarget.qwertyHint}
+                            QWERTY HINT: type {currentTarget?.qwertyHint}
                           </div>
                         )}
                       </div>

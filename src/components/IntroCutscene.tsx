@@ -161,75 +161,82 @@ const IntroCutscene: React.FC<IntroCutsceneProps> = ({ onComplete }) => {
             transition={{ duration: 0.5 }}
             className="space-y-6"
           >
-            <div className="space-y-2">
-              <div className="text-[10px] font-bold opacity-50 flex items-center gap-2">
-                <Terminal size={12} />
-                <span>SCENE {currentScene.toString().padStart(2, '0')} // {SCENES[currentScene].title}</span>
-              </div>
-              <pre className="text-[10px] sm:text-xs leading-tight whitespace-pre-wrap" style={{ color: 'var(--terminal-color)' }}>
-                {Array.isArray(SCENES[currentScene].content) 
-                  ? SCENES[currentScene].content[frame % SCENES[currentScene].content.length] 
-                  : SCENES[currentScene].content}
-              </pre>
-            </div>
+            {(() => {
+              const scene = SCENES[currentScene]!;
+              return (
+                <>
+                  <div className="space-y-2">
+                    <div className="text-[10px] font-bold opacity-50 flex items-center gap-2">
+                      <Terminal size={12} />
+                      <span>SCENE {currentScene.toString().padStart(2, '0')} // {scene.title}</span>
+                    </div>
+                    <pre className="text-[10px] sm:text-xs leading-tight whitespace-pre-wrap" style={{ color: 'var(--terminal-color)' }}>
+                      {Array.isArray(scene.content)
+                        ? scene.content[frame % scene.content.length]
+                        : scene.content}
+                    </pre>
+                  </div>
 
-            <div className="space-y-3">
-              <div className="text-[10px] font-bold opacity-50">[ THOUGHT LOG ]:</div>
-              <div className="space-y-2">
-                {SCENES[currentScene].thoughts.map((thought, i) => {
-                  const safeThought = thought || '';
-                  return (
-                    <motion.div 
-                      key={`${currentScene}-${i}-${safeThought.substring(0, 5)}`}
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 + i * 0.5 }}
-                      className="text-xs sm:text-sm italic opacity-80 whitespace-nowrap"
-                      style={{ color: 'var(--terminal-color)' }}
-                    >
-                      &gt; "{safeThought}"
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
+                  <div className="space-y-3">
+                    <div className="text-[10px] font-bold opacity-50">[ THOUGHT LOG ]:</div>
+                    <div className="space-y-2">
+                      {scene.thoughts.map((thought, i) => {
+                        const safeThought = thought || '';
+                        return (
+                          <motion.div 
+                            key={`${currentScene}-${i}-${safeThought.substring(0, 5)}`}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 + i * 0.5 }}
+                            className="text-xs sm:text-sm italic opacity-80 whitespace-nowrap"
+                            style={{ color: 'var(--terminal-color)' }}
+                          >
+                            &gt; "{safeThought}"
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-            <div className="flex justify-end pt-4">
-              {currentScene === SCENES.length - 1 ? (
-                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-4">
-                  {isConfirmingSkipTutorial ? (
-                    <button 
-                      onClick={() => onComplete(true)}
-                      className="px-4 py-2 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-black font-bold flex items-center space-x-2 transition-colors animate-pulse text-xs tracking-widest"
-                    >
-                      <span>[ CONFIRM SKIP ALL TUTORIALS? ]</span>
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={() => setIsConfirmingSkipTutorial(true)}
-                      className="px-4 py-2 border-2 border-terminal/30 text-terminal/60 hover:bg-terminal/20 hover:text-terminal font-bold flex items-center space-x-2 transition-colors text-xs tracking-widest"
-                    >
-                      <span>SKIP ONBOARDING</span>
-                    </button>
-                  )}
-                  <button
-                    onClick={handleNext}
-                    className="flex items-center gap-2 px-6 py-2 border-2 border-terminal/50 hover:bg-terminal hover:text-black transition-all font-bold text-xs tracking-widest group text-terminal"
-                  >
-                    <Play size={14} />
-                    <span>START SHIFT 000 (ORIENTATION)</span>
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={handleNext}
-                  className="flex items-center gap-2 px-6 py-2 border-2 border-terminal/50 hover:bg-terminal hover:text-black transition-all font-bold text-xs tracking-widest group text-terminal"
-                >
-                  <span>NEXT</span>
-                  <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                </button>
-              )}
-            </div>
+                  <div className="flex justify-end pt-4">
+                    {currentScene === SCENES.length - 1 ? (
+                      <div className="flex flex-col sm:flex-row items-end sm:items-center gap-4">
+                        {isConfirmingSkipTutorial ? (
+                          <button 
+                            onClick={() => onComplete(true)}
+                            className="px-4 py-2 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-black font-bold flex items-center space-x-2 transition-colors animate-pulse text-xs tracking-widest"
+                          >
+                            <span>[ CONFIRM SKIP ALL TUTORIALS? ]</span>
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => setIsConfirmingSkipTutorial(true)}
+                            className="px-4 py-2 border-2 border-terminal/30 text-terminal/60 hover:bg-terminal/20 hover:text-terminal font-bold flex items-center space-x-2 transition-colors text-xs tracking-widest"
+                          >
+                            <span>SKIP ONBOARDING</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={handleNext}
+                          className="flex items-center gap-2 px-6 py-2 border-2 border-terminal/50 hover:bg-terminal hover:text-black transition-all font-bold text-xs tracking-widest group text-terminal"
+                        >
+                          <Play size={14} />
+                          <span>START SHIFT 000 (ORIENTATION)</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleNext}
+                        className="flex items-center gap-2 px-6 py-2 border-2 border-terminal/50 hover:bg-terminal hover:text-black transition-all font-bold text-xs tracking-widest group text-terminal"
+                      >
+                        <span>NEXT</span>
+                        <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                      </button>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
           </motion.div>
         </AnimatePresence>
       </div>

@@ -18,7 +18,9 @@
 
 @layer base {
   body {
-    @apply bg-[#0c0c0c] font-mono overflow-hidden;
+    background-color: #0c0c0c;
+    font-family: var(--font-mono);
+    overflow: hidden;
     color: var(--terminal-color);
   }
 }

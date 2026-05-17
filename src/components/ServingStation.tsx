@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback, Dispatch, SetStateAction } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Word, Customer, toNativeKorean, toSinoKorean, PolitenessLevel, Location, Inventory, TruckConfig, InventoryBatch, formatKoreanTimeWithHint, DayHistory, CalendarEvent } from '../types';
+import { Word, Customer, toNativeKorean, toSinoKorean, PolitenessLevel, Location, Inventory, TruckConfig, InventoryBatch, formatKoreanTimeWithHint, DayHistory, CalendarEvent, OrderQueueItem, ShiftStats } from '../types';
 import { AlertCircle, CheckCircle2, User, Clock, Trash2, Cog, Play, RotateCcw, Plus, Zap, Brain, Coffee, ShoppingCart, Info, Volume2, Maximize2, Minimize2, ArrowRightCircle } from 'lucide-react';
 import { getFrontViewAscii } from '../App';
 import { RECIPE_REQUIREMENTS } from '../constants';
@@ -112,59 +112,33 @@ const LOCATION_BACKGROUNDS: Record<string, { bg: string, ground: string }> = {
   }
 };
 
-export default function ServingStation({ 
-  money, 
-  day, 
-  reputation, 
-  location,
-  inventory,
-  truckConfig,
-  hasFryer,
-  hasBeverageStation,
-  unlockedRecipes,
-  activeMenu,
-  romanizationEnabled,
-  sovAssist,
-  hasSeenShopTutorial,
-  isColorSettingUnlocked,
-  customer,
-  setCustomer,
-  orderQueue,
-  setOrderQueue,
-  servingPhase,
-  setServingPhase,
-  activeQueueIndex,
-  setActiveQueueIndex,
-  onUpdateInventory,
-  onComplete,
-  onCustomerSpawn
-}: { 
-  money: number, 
-  day: number, 
-  reputation: number, 
-  location: Location | null,
-  inventory: Inventory,
-  truckConfig: TruckConfig,
-  hasFryer: boolean,
-  hasBeverageStation: boolean,
-  unlockedRecipes: string[],
-  activeMenu: string[],
-  romanizationEnabled: boolean,
-  sovAssist: boolean,
-  hasSeenShopTutorial: boolean,
-  isColorSettingUnlocked: boolean,
-  customer: Customer | null,
-  setCustomer: React.Dispatch<React.SetStateAction<Customer | null>>,
-  orderQueue: any[],
-  setOrderQueue: React.Dispatch<React.SetStateAction<any[]>>,
-  servingPhase: 'GREETING' | 'QUEUE' | 'COOKING',
-  setServingPhase: React.Dispatch<React.SetStateAction<'GREETING' | 'QUEUE' | 'COOKING'>>,
-  activeQueueIndex: number | null,
-  setActiveQueueIndex: React.Dispatch<React.SetStateAction<number | null>>,
-  onUpdateInventory: (inv: Inventory) => void,
-  onComplete: (reward: number, repBonus: number, sessionStats: { wrongParticles: number, perfectStreak: number }) => void,
-  onCustomerSpawn?: (customer: Customer | null) => void
-}) {
+import { useGame } from '../context/GameContext';
+
+export default function ServingStation() {
+  const {
+    money,
+    day,
+    reputation,
+    currentLocation: location,
+    inventory,
+    truckConfig,
+    hasFryer,
+    hasBeverageStation,
+    unlockedRecipes,
+    activeMenu,
+    gameSettings,
+    hasSeenShopTutorial,
+    customer, setCustomer,
+    orderQueue, setOrderQueue,
+    servingPhase, setServingPhase,
+    activeQueueIndex, setActiveQueueIndex,
+    setInventory: onUpdateInventory,
+    handleServingComplete: onComplete,
+  } = useGame();
+  const romanizationEnabled = gameSettings.romanization;
+  const autoSOV = gameSettings.autoSOV;
+  const isColorSettingUnlocked = gameSettings.isColorSettingUnlocked;
+  const onCustomerSpawn = undefined;
   const [slots, setSlots] = useState<(Word | null)[]>([null, null, null, null]);
   const [cogs, setCogs] = useState<(Word | null)[]>([null, null, null, null]);
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
@@ -181,9 +155,9 @@ export default function ServingStation({
     polite: { ko: string, en: string },
     casual: { ko: string, en: string }
   }>({
-    formal: FORMAL_GREETINGS[0],
-    polite: POLITE_GREETINGS[0],
-    casual: CASUAL_GREETINGS[0]
+    formal: FORMAL_GREETINGS[0]!,
+    polite: POLITE_GREETINGS[0]!,
+    casual: CASUAL_GREETINGS[0]!
   });
   const [isConfirmingAbort, setIsConfirmingAbort] = useState(false);
   const abortTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -325,7 +299,7 @@ export default function ServingStation({
     }
   };
 
-  const getStockCount = (word: any): number => {
+  const getStockCount = (word: Word | null): number => {
     if (!word) return 0;
 
     // Spicy sauce is infinite but hidden from inventory
@@ -359,12 +333,12 @@ export default function ServingStation({
 
       for (let i = newBatches.length - 1; i >= 0 && remaining > 0; i--) {
         // Only deduct from fresh batches!
-        if (newBatches[i].id === id && newBatches[i].daysLeft !== 0) {
-          const deductAmount = Math.min(remaining, newBatches[i].quantity);
-          newBatches[i].quantity -= deductAmount;
+        if (newBatches[i]!.id === id && newBatches[i]!.daysLeft !== 0) {
+          const deductAmount = Math.min(remaining, newBatches[i]!.quantity);
+          newBatches[i]!.quantity -= deductAmount;
           remaining -= deductAmount;
 
-          if (newBatches[i].quantity <= 0) {
+          if (newBatches[i]!.quantity <= 0) {
             newBatches.splice(i, 1);
           }
         }
@@ -374,12 +348,12 @@ export default function ServingStation({
     onUpdateInventory({ ...inventory, batches: newBatches });
   };
 
-  const isStockDepletedForOrder = (item: any): boolean => {
+  const isStockDepletedForOrder = (item: OrderQueueItem): boolean => {
     if (!hasSeenShopTutorial && day === 0) return false;
     if (!item) return true;
     
-    const req = RECIPE_REQUIREMENTS[item.type || item.itemId] || {};
-    for (const [ingredientId, requiredQty] of Object.entries(req)) {
+    const req = RECIPE_REQUIREMENTS[(item.type || item.itemId || '') as keyof typeof RECIPE_REQUIREMENTS] || {};
+    for (const [ingredientId, requiredQty] of Object.entries(req as Record<string, number>)) {
       const available = inventory.batches
         .filter(batch => batch.id === ingredientId && batch.daysLeft !== 0) // Exclude spoiled items
         .reduce((total, batch) => total + batch.quantity, 0);
@@ -414,15 +388,16 @@ export default function ServingStation({
     // === QUEUE LOGIC (Preserved from Fix #7 Refactor) ===
     setOrderQueue(prev => {
       const updated = [...prev];
-      if (!isIntermediate && activeQueueIndex >= 0 && updated[activeQueueIndex]) {
-        updated[activeQueueIndex].isCompleted = true;
-        updated[activeQueueIndex].completed = true; 
+      if (!isIntermediate && activeQueueIndex !== null && activeQueueIndex >= 0 && updated[activeQueueIndex]) {
+        updated[activeQueueIndex]!.isCompleted = true;
+        updated[activeQueueIndex]!.completed = true; 
       }
       return updated;
     });
 
     if (isIntermediate) {
       setActiveQueueIndex(prev => {
+        if (prev === null) return 0;
         let nextIndex = prev + 1;
         while (nextIndex < orderQueue.length && orderQueue[nextIndex]?.isCompleted) {
           nextIndex++;
@@ -556,14 +531,14 @@ export default function ServingStation({
 
   // Sync customer state to parent safely
   useEffect(() => {
-    onCustomerSpawn?.(customer);
+    (onCustomerSpawn as any)?.(customer);
   }, [customer, onCustomerSpawn]);
 
   // Customer Spawner
   useEffect(() => {
     if (!customer && !vibeCheck && !ruinedDish && !isMachineOnFire && !isTutorialSpawnPaused) {
       // Pick a random idle thought
-      const thought = IDLE_THOUGHTS[Math.floor(Math.random() * IDLE_THOUGHTS.length)];
+      const thought = IDLE_THOUGHTS[Math.floor(Math.random() * IDLE_THOUGHTS.length)]!;
       setIdleThought(thought);
 
       const delay = calculateSpawnDelay(day, reputation);
@@ -575,7 +550,7 @@ export default function ServingStation({
   }, [customer, vibeCheck, ruinedDish, isMachineOnFire, day, reputation, isTutorialSpawnPaused]);
 
   useEffect(() => {
-    if (activeQueueIndex >= orderQueue.length) {
+    if (activeQueueIndex !== null && activeQueueIndex >= orderQueue.length) {
       setActiveQueueIndex(0);
     }
   }, [orderQueue.length, activeQueueIndex]);
@@ -631,19 +606,19 @@ export default function ServingStation({
         }
       ];
       
-      const stage = tutorialStages[shiftStats.served];
-      const typeInfo = stage.type;
+      const stage = tutorialStages[shiftStats.served]!;
+      const typeInfo = stage.type!;
       
       const targetItems = [{
         type: stage.id,
         name: '버거',
         icon: '🍔',
         visual: '[🍔]',
-        recipe: RECIPE_REQUIREMENTS[stage.id],
+        recipe: RECIPE_REQUIREMENTS[stage.id] || {},
         completed: false,
         isCompleted: false,
         cookedResult: null,
-        modifier: stage.modifierLabel
+        modifier: stage.modifierLabel!
       }];
 
       const freshQueue = targetItems.map((item, index) => ({
@@ -706,7 +681,7 @@ export default function ServingStation({
       name: item.name,
       icon: item.id === 'fries' ? '🍟' : item.id === 'soda' ? '🥤' : item.id === 'juice' ? '🧃' : '🍔',
       visual: item.id === 'fries' ? '[🍟]' : item.id === 'soda' ? '[🥤]' : item.id === 'juice' ? '[🧃]' : '[🍔]',
-      recipe: RECIPE_REQUIREMENTS[item.id],
+      recipe: RECIPE_REQUIREMENTS[item.id] || {},
       completed: false,
       isCompleted: false, // FORCE reset
       cookedResult: null,  // FORCE clear previous food data
@@ -723,15 +698,15 @@ export default function ServingStation({
     if (isPicky) {
       const r = Math.random();
       // Apply picky logic to the first item if it's a burger
-      if (selectedItems[0].id.includes('burger')) {
+      if (selectedItems[0]!.id.includes('burger')) {
         // Removed the "no onion" and "no spicy" logic. 
         // Picky customers will now only ask for additions.
         if (r > 0.5) {
           rawOrder = `양파 추가해주세요. ${rawOrder}`;
-          targetItems[0].modifier = '양파 추가';
+          targetItems[0]!.modifier = '양파 추가';
         } else {
           rawOrder = `매운 소스 추가해주세요. ${rawOrder}`;
-          targetItems[0].modifier = '매운 소스 추가';
+          targetItems[0]!.modifier = '매운 소스 추가';
         }
       }
     }
@@ -755,7 +730,7 @@ export default function ServingStation({
     const { mods, negs } = parseModifiers(rawOrder);
     
     // Strict Spawner Override: Build a 100% fresh array
-    const freshQueue = targetItems.map((item, index) => ({
+    const freshQueue: OrderQueueItem[] = targetItems.map((item, index) => ({
       ...item,
       instanceId: `${item.type}-${Date.now()}-${index}`,
       isCompleted: false,
@@ -764,23 +739,23 @@ export default function ServingStation({
 
     const newCustomer: Customer = {
       id: Math.random().toString(),
-      name: typeInfo.label,
-      type: typeInfo.type,
-      order: selectedItems[0].id,
+      name: typeInfo!.label,
+      type: typeInfo!.type,
+      order: selectedItems[0]!.id,
       targetItems: freshQueue,
       count: numItems,
       picky: isPicky,
       modifiers: mods,
       negatedModifiers: negs,
       rawOrder,
-      politenessRequired: typeInfo.politeness,
+      politenessRequired: typeInfo!.politeness,
       ticketId: Math.floor(Math.random() * 100)
     };
     
     // Randomize greetings for this customer
-    const selectedFormal = FORMAL_GREETINGS[Math.floor(Math.random() * FORMAL_GREETINGS.length)];
-    const selectedPolite = POLITE_GREETINGS[Math.floor(Math.random() * POLITE_GREETINGS.length)];
-    const selectedCasual = CASUAL_GREETINGS[Math.floor(Math.random() * CASUAL_GREETINGS.length)];
+    const selectedFormal = FORMAL_GREETINGS[Math.floor(Math.random() * FORMAL_GREETINGS.length)]!;
+    const selectedPolite = POLITE_GREETINGS[Math.floor(Math.random() * POLITE_GREETINGS.length)]!;
+    const selectedCasual = CASUAL_GREETINGS[Math.floor(Math.random() * CASUAL_GREETINGS.length)]!;
     setCurrentGreetings({ formal: selectedFormal, polite: selectedPolite, casual: selectedCasual });
 
     setCustomer(newCustomer);
@@ -824,7 +799,7 @@ export default function ServingStation({
 
   // Called when a word tile in the palette is clicked
   const handleWordTileClick = (word: Word) => {
-    if (sovAssist) {
+    if (autoSOV) {
       // Original behaviour: auto-route to the correct slot
       let targetIdx = -1;
       if (word.type === 'location') targetIdx = 0;
@@ -840,7 +815,7 @@ export default function ServingStation({
 
   // Called when a cog tile in the particle palette is clicked
   const handleCogTileClick = (cog: Word) => {
-    if (sovAssist) {
+    if (autoSOV) {
       let idx = -1;
       if (cog.text === '에서') idx = 0;
       if (cog.text === '를')  idx = 2;
@@ -857,7 +832,7 @@ export default function ServingStation({
     e.stopPropagation();
     if (slotIndex === 1) return;
 
-    if (!sovAssist && selectedWord) {
+    if (!autoSOV && selectedWord) {
       // Manual mode: place the selected word into whichever slot was clicked
       handleWordAssign(selectedWord, slotIndex);
       return;
@@ -871,7 +846,7 @@ export default function ServingStation({
     e.stopPropagation();
     if (slotIndex === 1) return;
 
-    if (!sovAssist && selectedCog) {
+    if (!autoSOV && selectedCog) {
       handleCogAssign(selectedCog, slotIndex);
       return;
     }
@@ -958,7 +933,7 @@ export default function ServingStation({
       return;
     }
 
-    const activeItem = orderQueue[activeQueueIndex];
+    const activeItem = activeQueueIndex !== null ? orderQueue[activeQueueIndex] : null;
     if (!activeItem) return;
 
     if (isStockDepletedForOrder(activeItem)) {
@@ -976,6 +951,19 @@ export default function ServingStation({
       const isAnyBurgerPhase2 = currentProduct === 'burger' || currentProduct === 'cheeseburger' || currentProduct === 'kimchiburger';
       const locationSlot = slots[0];
       const object = slots[2];
+      
+      // Deduct ingredients only after validation starts
+      const isTutorialMode = !hasSeenShopTutorial && day === 0;
+      if (object && !isTutorialMode) {
+        if (object.id === 'o1') deductIngredients(RECIPE_REQUIREMENTS['burger']!); // 1 Bun, 1 Beef
+        else if (object.id === 'o2') deductIngredients(RECIPE_REQUIREMENTS['fries']!); // 1 Potato
+        else if (object.id === 'o3') deductIngredients({ cheese: 1 }); // Just Cheese
+        else if (object.id === 'o4') deductIngredients({ kimchi: 1 }); // Just Kimchi
+        else if (object.id === 'o5') deductIngredients({ onion: 1 });
+        else if (object.id === 'o6') deductIngredients({ spicy_sauce: 1 });
+        else if (object.id === 'o8') deductIngredients({ soda: 1 });
+        else if (object.id === 'o9') deductIngredients({ juice: 1 });
+      }
       const verb = slots[3];
       const lCog = cogs[0];
       const oCog = cogs[2];
@@ -984,19 +972,6 @@ export default function ServingStation({
         if (verb.id === 'v1') audio.playSFX('GRILL_HISS');
         else if (verb.id === 'v2') audio.playSFX('FRYER_BUBBLE');
         else if (verb.id === 'v4') audio.playSFX('POUR_DRINK');
-      }
-
-      // Deduct ingredients only after validation starts
-      const isTutorialMode = !hasSeenShopTutorial && day === 0;
-      if (object && !isTutorialMode) {
-        if (object.id === 'o1') deductIngredients(RECIPE_REQUIREMENTS['burger']); // 1 Bun, 1 Beef
-        else if (object.id === 'o2') deductIngredients(RECIPE_REQUIREMENTS['fries']); // 1 Potato
-        else if (object.id === 'o3') deductIngredients({ cheese: 1 }); // Just Cheese
-        else if (object.id === 'o4') deductIngredients({ kimchi: 1 }); // Just Kimchi
-        else if (object.id === 'o5') deductIngredients({ onion: 1 });
-        else if (object.id === 'o6') deductIngredients({ spicy_sauce: 1 });
-        else if (object.id === 'o8') deductIngredients({ soda: 1 });
-        else if (object.id === 'o9') deductIngredients({ juice: 1 });
       }
 
       // ====================== PHASE 2 FIX ======================
@@ -1308,7 +1283,7 @@ export default function ServingStation({
           <div className="flex-1 relative flex flex-col items-center justify-end pb-4 overflow-hidden">
             {/* Background Layer */}
             <pre className="ascii-art text-[8px] sm:text-[10px] leading-tight absolute top-4 select-none pointer-events-none opacity-20" style={{ color: 'var(--terminal-color)' }}>
-              {location ? LOCATION_BACKGROUNDS[location.id]?.bg : LOCATION_BACKGROUNDS.residence.bg}
+              {location ? LOCATION_BACKGROUNDS[location.id]?.bg : LOCATION_BACKGROUNDS.residence!.bg}
             </pre>
             
             {/* Street Scene Container - Grounded Baseline */}
@@ -1423,7 +1398,7 @@ export default function ServingStation({
             {/* Ground Layer */}
             <div className="w-full relative z-10 -mt-1">
               <pre className="ascii-art text-[8px] sm:text-[10px] opacity-40 leading-none w-full text-center select-none pointer-events-none" style={{ color: 'var(--terminal-color)' }}>
-                {location ? LOCATION_BACKGROUNDS[location.id]?.ground : LOCATION_BACKGROUNDS.residence.ground}
+                {location ? LOCATION_BACKGROUNDS[location.id]?.ground : LOCATION_BACKGROUNDS.residence!.ground}
               </pre>
             </div>
           </div>
@@ -1575,9 +1550,9 @@ export default function ServingStation({
                     ? '[ CUSTOMER INTERACTION ] (GREETING REQUIRED)' 
                     : servingPhase === 'QUEUE'
                       ? '[ ORDER QUEUE ] (SELECT ITEM TO PREPARE)'
-                      : orderQueue[activeQueueIndex]?.type === 'soda' || orderQueue[activeQueueIndex]?.type === 'juice'
+                      : (activeQueueIndex !== null && (orderQueue[activeQueueIndex]?.type === 'soda' || orderQueue[activeQueueIndex]?.type === 'juice'))
                       ? '[ BEVERAGE STATION - SOV ]'
-                      : orderQueue[activeQueueIndex]?.type === 'fries'
+                      : (activeQueueIndex !== null && orderQueue[activeQueueIndex]?.type === 'fries')
                       ? '[ FRY STATION - SOV ]'
                       : currentProduct === 'burger'
                       ? '[ PREP STATION - SOV ]'
@@ -1715,7 +1690,7 @@ export default function ServingStation({
                   if (w.text === '김치' && !unlockedRecipes.includes('kimchiburger')) return false;
                   
                   // Phase Filtering
-                  const activeItem = orderQueue[activeQueueIndex];
+                  const activeItem = activeQueueIndex !== null ? orderQueue[activeQueueIndex] : undefined;
                   const itemType = activeItem?.type || activeItem?.itemId;
                   const isAnyBurgerPhase2 = currentProduct === 'burger' || currentProduct === 'cheeseburger' || currentProduct === 'kimchiburger';
                   
@@ -1754,7 +1729,7 @@ export default function ServingStation({
                       className={`px-3 py-2 border text-base flex items-center space-x-2 transition-colors ${
                         isEmpty 
                           ? 'border-red-900 text-red-700 cursor-not-allowed pointer-events-none' 
-                          : !sovAssist && selectedWord?.id === word.id
+                          : !autoSOV && selectedWord?.id === word.id
                             ? 'border-terminal bg-terminal/30 shadow-[0_0_10px_rgba(var(--terminal-color-rgb),0.4)]'
                             : isTutorialHighlight
                               ? 'border-yellow-500 bg-yellow-500/20 animate-pulse shadow-[0_0_10px_rgba(234,179,8,0.3)] z-10'
@@ -1797,9 +1772,9 @@ export default function ServingStation({
                       <div className="flex flex-col items-center w-full">
                         <div 
                           className={`w-full h-20 border-[3px] bg-[#0c0c0c] flex flex-col items-center justify-center relative transition-all cursor-pointer shadow-[0_0_15px_rgba(var(--terminal-color-rgb),0.05)] ${
-                            !sovAssist && selectedWord && !slots[i]
+                            !autoSOV && selectedWord && !slots[i]
                               ? 'border-terminal animate-pulse shadow-[0_0_12px_rgba(var(--terminal-color-rgb),0.3)]'
-                              : !sovAssist && selectedCog && slots[i] && !cogs[i]
+                              : !autoSOV && selectedCog && slots[i] && !cogs[i]
                                 ? 'border-yellow-400/60'
                                 : 'border-terminal/30 hover:border-terminal/60'
                           }`}
@@ -1824,7 +1799,7 @@ export default function ServingStation({
                               <div className="h-3 w-0.5 bg-terminal/40" />
                               <div 
                                 className={`w-12 h-6 border-2 bg-[#0c0c0c] rounded-sm flex items-center justify-center cursor-pointer shadow-lg transition-colors ${
-                                  !sovAssist && selectedCog && !cogs[i]
+                                  !autoSOV && selectedCog && !cogs[i]
                                     ? 'border-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.4)]'
                                     : 'border-yellow-500/40 hover:border-yellow-500'
                                 }`}
@@ -1873,14 +1848,14 @@ export default function ServingStation({
             <div className="flex justify-between items-center shrink-0">
               <div className="space-y-1">
                 <div className="text-[8px] opacity-50 uppercase">
-                  {sovAssist ? 'SYSTEM INPUT (CLICK TO ASSIGN):' : `SYSTEM INPUT (${selectedWord ? `[${selectedWord.text}] SELECTED — CLICK A SLOT` : selectedCog ? `[${selectedCog.text}] SELECTED — CLICK A COG` : 'SELECT WORD, THEN CLICK SLOT'}):`}
+                  {autoSOV ? 'SYSTEM INPUT (CLICK TO ASSIGN):' : `SYSTEM INPUT (${selectedWord ? `[${selectedWord.text}] SELECTED — CLICK A SLOT` : selectedCog ? `[${selectedCog.text}] SELECTED — CLICK A COG` : 'SELECT WORD, THEN CLICK SLOT'}):`}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {ENGINE_WORDS.filter(w => {
                     if (w.type !== 'particle') return false;
                     if (w.text === '요' || w.text === '습니다') return false;
                     
-                    const activeItem = orderQueue[activeQueueIndex];
+                    const activeItem = activeQueueIndex !== null ? orderQueue[activeQueueIndex] : undefined;
                     const isSoda = activeItem?.type === 'soda' || activeItem?.type === 'juice';
                     
                     if (isSoda) return w.text === '에' || w.text === '를';
@@ -1896,7 +1871,7 @@ export default function ServingStation({
                       key={`cog-${cog.id}`}
                       onClick={(e) => { e.stopPropagation(); handleCogTileClick(cog); }}
                       className={`px-3 py-1.5 border text-base font-bold transition-all ${
-                        !sovAssist && selectedCog?.id === cog.id
+                        !autoSOV && selectedCog?.id === cog.id
                           ? 'border-yellow-400 bg-yellow-400/20 text-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.4)]'
                           : isTutorialHighlight
                             ? 'border-yellow-500 bg-yellow-500 text-black animate-pulse shadow-[0_0_10px_rgba(234,179,8,0.5)] z-10'
@@ -2313,7 +2288,7 @@ export default function ServingStation({
   );
 }
 
-function ShiftSummaryPopup({ stats, onNext, day, isColorSettingUnlocked }: { stats: any, onNext: () => void, day: number, isColorSettingUnlocked: boolean }) {
+function ShiftSummaryPopup({ stats, onNext, day, isColorSettingUnlocked }: { stats: ShiftStats, onNext: () => void, day: number, isColorSettingUnlocked: boolean }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <motion.div 

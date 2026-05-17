@@ -28,25 +28,20 @@ const INITIAL_UPGRADES: Upgrade[] = [
   { id: '6', name: 'Business District Permit', description: 'Deploy to high-income areas. (Requires 4-Star Reputation)', cost: 500000, durationDays: 10, profitBoostPercent: 50, unlocked: false, tier: 2, category: 'PERMIT' },
 ];
 
-export default function ResearchCenter({ 
-  currentMoney, 
-  reputation, 
-  day,
-  unlockedIds,
-  onPurchase, 
-  onCancel,
-  hasSeenTutorial,
-  onCompleteTutorial
-}: { 
-  currentMoney: number, 
-  reputation: number, 
-  day: number,
-  unlockedIds: string[],
-  onPurchase: (upgrade: Upgrade) => void, 
-  onCancel: () => void,
-  hasSeenTutorial: boolean,
-  onCompleteTutorial: () => void
-}) {
+import { useGame } from '../context/GameContext';
+
+export default function ResearchCenter({ onCancel }: { onCancel: () => void }) {
+  const {
+    money: currentMoney,
+    reputation,
+    day,
+    unlockedUpgrades: unlockedIds,
+    hasSeenResearchTutorial,
+    setHasSeenResearchTutorial,
+    handleResearchComplete: onPurchase,
+  } = useGame();
+  const hasSeenTutorial = hasSeenResearchTutorial;
+  const onCompleteTutorial = () => setHasSeenResearchTutorial(true);
   const [upgrades, setUpgrades] = useState<Upgrade[]>(() => 
     INITIAL_UPGRADES.map(u => ({ ...u, unlocked: unlockedIds.includes(u.id) }))
   );

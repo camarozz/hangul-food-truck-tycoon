@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getFrontViewAscii } from '../App';
-import { TruckConfig } from '../types';
-
-interface SystemBootSequenceProps {
-  onComplete: () => void;
-  isFastBoot?: boolean;
-  truckConfig: TruckConfig;
-}
+import { useGame } from '../context/GameContext';
 
 const BOOT_MESSAGES = [
   "> INITIATING SECURE HANDSHAKE...",
@@ -19,7 +13,9 @@ const BOOT_MESSAGES = [
   "> SYSTEM READY. HANDING OVER CONTROL."
 ];
 
-export default function SystemBootSequence({ onComplete, isFastBoot = false, truckConfig }: SystemBootSequenceProps) {
+export default function SystemBootSequence({ onComplete, isFastBoot = false }: { onComplete: () => void; isFastBoot?: boolean }) {
+  const { truckConfig } = useGame();
+
   const [bootLog, setBootLog] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
 
@@ -34,7 +30,7 @@ export default function SystemBootSequence({ onComplete, isFastBoot = false, tru
 
     const interval = setInterval(() => {
       if (currentLogIndex < totalSteps) {
-        setBootLog(prev => [...prev, BOOT_MESSAGES[currentLogIndex]]);
+        setBootLog(prev => [...prev, BOOT_MESSAGES[currentLogIndex]!]);
         currentLogIndex++;
         
         // Update progress based on index

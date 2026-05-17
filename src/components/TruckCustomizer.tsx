@@ -7,19 +7,12 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Palette, Truck, CheckCircle2, Terminal, PenTool } from 'lucide-react';
 import { TruckConfig, TruckProp, TruckColor, TruckWheel, TruckGrill, TruckUnderglow, TruckWindow, toSinoKorean } from '../types';
-import { TRUCK_PROPS, TRUCK_COLORS, TRUCK_WHEELS, TRUCK_GRILLS, TRUCK_UNDERGLOWS, TRUCK_WINDOWS, getFrontViewAscii } from '../App';
+import { TRUCK_PROPS, TRUCK_COLORS, TRUCK_WHEELS, TRUCK_GRILLS, TRUCK_UNDERGLOWS, TRUCK_WINDOWS } from '../constants';
+import { getFrontViewAscii } from '../App';
+import { useGame } from '../context/GameContext';
 
-export default function TruckCustomizer({ 
-  money, 
-  config, 
-  onUpdate, 
-  onCancel 
-}: { 
-  money: number, 
-  config: TruckConfig, 
-  onUpdate: (newConfig: TruckConfig, cost: number) => void, 
-  onCancel: () => void 
-}) {
+export default function TruckCustomizer({ onCancel }: { onCancel: () => void }) {
+  const { money, truckConfig: config, handleCustomizeComplete: onUpdate } = useGame();
   const [selectedColor, setSelectedColor] = useState<TruckColor>(config.color);
   const [selectedProp, setSelectedProp] = useState<TruckProp>(config.prop || TRUCK_PROPS[0]);
   const [selectedWheel, setSelectedWheel] = useState<TruckWheel>(config.wheel || TRUCK_WHEELS[0]);

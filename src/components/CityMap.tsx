@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Location, Inventory } from '../types';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { Location } from '../types';
 import PreFlightModal from './PreFlightModal';
+import { useGame } from '../context/GameContext';
 
 const LOCATIONS: Location[] = [
   {
@@ -75,32 +75,21 @@ const LOCATIONS: Location[] = [
   }
 ];
 
-export default function CityMap({ 
-  currentFuel, 
-  reputation,
-  permits,
-  day,
-  inventory,
-  unlockedRecipes,
-  activeMenu,
-  onUpdateMenu,
-  onSelect, 
-  onCancel 
-}: { 
-  currentFuel: number, 
-  reputation: number,
-  permits: string[],
-  day: number,
-  inventory: Inventory,
-  unlockedRecipes: string[],
-  activeMenu: string[],
-  onUpdateMenu: (menu: string[]) => void,
-  onSelect: (location: Location) => void, 
-  onCancel: () => void 
-}) {
+export default function CityMap({ onCancel }: { onCancel: () => void }) {
+  const {
+    gas: currentFuel,
+    reputation,
+    permits,
+    day,
+    inventory,
+    unlockedRecipes,
+    activeMenu,
+    setActiveMenu: onUpdateMenu,
+    handleLocationSelect: onSelect,
+  } = useGame();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [showPreFlight, setShowPreFlight] = useState(false);
-  const selected = LOCATIONS[selectedIndex];
+  const selected: Location = (LOCATIONS[selectedIndex] ?? LOCATIONS[0])!;
   
   const isLocked = (selected?.id === 'univ' && !permits.includes('univ')) || 
                    (selected?.id === 'park' && !permits.includes('park')) ||
@@ -156,12 +145,7 @@ export default function CityMap({
         isOpen={showPreFlight}
         onClose={() => setShowPreFlight(false)}
         onDeploy={onSelect}
-        inventory={inventory}
-        unlockedRecipes={unlockedRecipes}
-        activeMenu={activeMenu}
-        onUpdateMenu={onUpdateMenu}
         selectedLocation={selected}
-        currentFuel={currentFuel}
       />
 
       <div className="border-y-2 border-terminal py-1 px-4 flex justify-between items-center bg-terminal/5">

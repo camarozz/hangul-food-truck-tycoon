@@ -4,28 +4,30 @@ import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import { Inventory, Location } from '../types';
 import { RECIPE_REQUIREMENTS, RECIPE_LABELS, INGREDIENT_ICONS, INGREDIENT_NAMES, UI_STRINGS } from '../constants';
 import { audio } from '../audioManager';
+import { useGame } from '../context/GameContext';
 
 export default function PreFlightModal({
   isOpen,
   onClose,
   onDeploy,
-  inventory,
-  unlockedRecipes,
-  activeMenu,
-  onUpdateMenu,
-  selectedLocation,
-  currentFuel
+  selectedLocation: selectedLocationProp,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onDeploy: (location: Location) => void;
-  inventory: Inventory;
-  unlockedRecipes: string[];
-  activeMenu: string[];
-  onUpdateMenu: (menu: string[]) => void;
-  selectedLocation: Location | null;
-  currentFuel: number;
+  selectedLocation?: Location;
 }) {
+  const {
+    inventory,
+    unlockedRecipes,
+    activeMenu,
+    setActiveMenu: onUpdateMenu,
+    currentLocation,
+    gas: currentFuel,
+  } = useGame();
+
+  const selectedLocation = selectedLocationProp ?? currentLocation;
+
   const [hoveredRecipe, setHoveredRecipe] = useState<string | null>(null);
 
   if (!isOpen || !selectedLocation) return null;

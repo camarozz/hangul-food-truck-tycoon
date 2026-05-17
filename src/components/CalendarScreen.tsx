@@ -7,14 +7,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar as CalendarIcon, Moon, TrendingUp, AlertCircle, Save, CheckCircle2, XCircle } from 'lucide-react';
 import { DayHistory, CalendarEvent, UnlockNotification } from '../types';
+import { useGame } from '../context/GameContext';
 
 interface CalendarScreenProps {
-  currentDay: number;
-  history: DayHistory[];
-  events: CalendarEvent[];
   onSleep: () => void;
   onGoToMarket: () => void;
-  unlockNotification: UnlockNotification | null;
 }
 
 const DAYS_OF_WEEK = [
@@ -27,7 +24,8 @@ const DAYS_OF_WEEK = [
   { en: 'SUN', ko: '일' }
 ];
 
-export default function CalendarScreen({ currentDay, history, events, onSleep, onGoToMarket, unlockNotification }: CalendarScreenProps) {
+export default function CalendarScreen({ onSleep, onGoToMarket }: CalendarScreenProps) {
+  const { day: currentDay, history, events, lastUnlock: unlockNotification } = useGame();
   const [saveStatus, setSaveStatus] = useState<'IDLE' | 'SAVING' | 'SUCCESS' | 'ERROR'>('IDLE');
   const [saveProgress, setSaveProgress] = useState(0);
 
@@ -182,7 +180,7 @@ export default function CalendarScreen({ currentDay, history, events, onSleep, o
                   <div key={i} className={`p-2 border ${e.day === currentDay + 1 ? 'border-yellow-500/50 bg-yellow-500/5' : 'border-terminal/20'}`}>
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-[10px] font-bold text-white uppercase">
-                        {e.day === currentDay + 1 ? 'TOMORROW (내일)' : `${DAYS_OF_WEEK[(e.day - 1) % 7].en}, ${e.day}일`}
+                        {e.day === currentDay + 1 ? 'TOMORROW (내일)' : `${DAYS_OF_WEEK[(e.day - 1) % 7]?.en ?? ''}, ${e.day}일`}
                       </span>
                       <span className={`text-[8px] px-1 border ${e.type === 'RENT' ? 'border-red-500 text-red-500' : 'border-blue-400 text-blue-400'}`}>
                         {e.type}

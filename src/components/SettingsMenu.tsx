@@ -7,25 +7,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Volume2, Monitor, Languages, AlertTriangle, Play } from 'lucide-react';
 
+import { useGame } from '../context/GameContext';
 import { ThemeColor } from '../types';
-
-interface SettingsMenuProps {
-  onClose: () => void;
-  settings: {
-    romanization: boolean;
-    crtEffects: boolean;
-    phosphorFlash: boolean;
-    bgmVolume: number;
-    sfxVolume: number;
-    themeColor: ThemeColor;
-    isColorSettingUnlocked: boolean;
-    unlockedThemes: ThemeColor[];
-    sovAssist: boolean;
-  };
-  onUpdate: (newSettings: any) => void;
-  onResetData: () => void;
-  onReplayIntro: () => void;
-}
 
 const ALL_THEME_OPTIONS: { id: ThemeColor, label: string }[] = [
   { id: 'GREEN', label: 'PHOSPHOR GREEN' },
@@ -38,7 +21,16 @@ const ALL_THEME_OPTIONS: { id: ThemeColor, label: string }[] = [
   { id: 'GLITCH', label: 'GLITCH GREY' }
 ];
 
-const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose, settings, onUpdate, onResetData, onReplayIntro }) => {
+const SettingsMenu: React.FC<{ 
+  onClose: () => void;
+  onReplayIntro: () => void;
+}> = ({ onClose, onReplayIntro }) => {
+  const { 
+    gameSettings: settings, 
+    setGameSettings: onUpdate, 
+    restartGame: onResetData 
+  } = useGame();
+
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   const [confirmText, setConfirmText] = useState('');
   const [activeTab, setActiveTab] = useState<'DISPLAY' | 'AUDIO' | 'SYSTEM'>('DISPLAY');
@@ -81,10 +73,10 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose, settings, onUpdate
 
         {/* Tab Navigation */}
         <div className="flex border-b-2 border-terminal/50 px-2 pt-2 bg-terminal/5">
-          {['DISPLAY', 'AUDIO', 'SYSTEM'].map((tab) => (
+          {(['DISPLAY', 'AUDIO', 'SYSTEM'] as const).map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as any)}
+              onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 text-[10px] font-bold transition-all uppercase tracking-widest border-t border-x ${
                 activeTab === tab
                   ? 'bg-[#0c0c0c] border-terminal/50 text-terminal translate-y-[2px]'
@@ -265,11 +257,11 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onClose, settings, onUpdate
                     <span className="text-sm font-bold uppercase">SOV Assist Placement</span>
                   </div>
                   <button
-                    onClick={() => onUpdate({ ...settings, sovAssist: !settings.sovAssist })}
-                    className={`w-12 h-6 border-2 border-terminal relative transition-colors ${settings.sovAssist ? 'bg-terminal/20' : 'bg-transparent'}`}
+                    onClick={() => onUpdate({ ...settings, autoSOV: !settings.autoSOV })}
+                    className={`w-12 h-6 border-2 border-terminal relative transition-colors ${settings.autoSOV ? 'bg-terminal/20' : 'bg-transparent'}`}
                   >
                     <motion.div
-                      animate={{ x: settings.sovAssist ? 24 : 0 }}
+                      animate={{ x: settings.autoSOV ? 24 : 0 }}
                       className="absolute top-0.5 left-0.5 w-4 h-4 bg-terminal"
                     />
                   </button>

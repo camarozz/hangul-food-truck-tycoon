@@ -6,23 +6,21 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Package, Truck, AlertTriangle, CheckCircle2, XCircle, Info, Trash2, AlertCircle, Clock } from 'lucide-react';
-import { toSinoKorean, toNativeKorean, Inventory, InventoryBatch, NATIVE_NUMBERS, SINO_NUMBERS } from '../types';
+import { 
+  toSinoKorean, 
+  toNativeKorean, 
+  Inventory, 
+  InventoryBatch, 
+  NATIVE_NUMBERS, 
+  SINO_NUMBERS,
+  MarketItem,
+  MarketCatalogEntry
+} from '../types';
 import { UI_STRINGS } from '../constants';
 import { audio } from '../audioManager';
+import { useGame } from '../context/GameContext';
 
-interface MarketItem {
-  id: string;
-  name: string;
-  koName: string;
-  unit: string;
-  counter: string;
-  basePrice: number;
-  currentPrice: number;
-  type: 'DRY' | 'FRESH';
-  shelfLife: number; // in days
-}
-
-const MARKET_CATALOG = UI_STRINGS.MARKET_CATALOG;
+const MARKET_CATALOG = UI_STRINGS.MARKET_CATALOG as unknown as MarketCatalogEntry[];
 
 const NATIVE_TO_VAL: Record<string, number> = Object.entries(NATIVE_NUMBERS).reduce((acc, [k, v]) => ({ ...acc, [v]: parseInt(k) }), {});
 const SINO_TO_VAL: Record<string, number> = Object.entries(SINO_NUMBERS).reduce((acc, [k, v]) => ({ ...acc, [v]: parseInt(k) }), {});
@@ -37,37 +35,27 @@ interface CartItem {
   cost: number;
 }
 
-export default function RestockStation({
-  money,
-  inventory,
-  gas,
-  day,
-  reputation,
-  onComplete,
-  onCancel,
-  hasSeenTutorial,
-  onCompleteTutorial,
-  cachedCatalog,
-  onUpdateCache
-}: {
-  money: number,
-  inventory: Inventory,
-  gas: number,
-  day: number,
-  reputation: number,
-  onComplete: (newMoney: number, newInventory: Inventory, newGas: number, repChange?: number) => void,
-  onCancel: () => void,
-  hasSeenTutorial: boolean,
-  onCompleteTutorial: () => void,
-  cachedCatalog: { day: number, catalog: any[] },
-  onUpdateCache: (cache: { day: number, catalog: any[] }) => void
-}) {
+export default function RestockStation({ onCancel }: { onCancel: () => void }) {
+  const {
+    money,
+    inventory,
+    gas,
+    day,
+    reputation,
+    hasSeenMarketTutorial,
+    setHasSeenMarketTutorial,
+    marketCache: cachedCatalog,
+    setMarketCache: onUpdateCache,
+    handleRestockComplete: onComplete,
+  } = useGame();
+  const hasSeenTutorial = hasSeenMarketTutorial;
+  const onCompleteTutorial = () => setHasSeenMarketTutorial(true);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [input, setInput] = useState('');
   const [feedback, setFeedback] = useState<{ message: string, type: 'error' | 'success' } | null>(null);
   const [deliveryType, setDeliveryType] = useState<'STANDARD' | 'BAEDAL'>('STANDARD');
   const [catalog, setCatalog] = useState<MarketItem[]>(
-    (MARKET_CATALOG as any).map((item: any) => ({ ...item, currentPrice: item.basePrice }))
+    MARKET_CATALOG.map((item) => ({ ...item, currentPrice: item.basePrice }))
   );
   const [showTutorialModal, setShowTutorialModal] = useState(!hasSeenTutorial);
   const [isTutorialActive, setIsTutorialActive] = useState(false);
@@ -152,9 +140,9 @@ export default function RestockStation({
 
     let quantity = 0;
     if (item.id === 'gas') {
-      quantity = SINO_TO_VAL[qtyStr] || parseInt(qtyStr);
+      quantity = SINO_TO_VAL[qtyStr!] || parseInt(qtyStr!);
     } else {
-      quantity = NATIVE_COUNTER_FORMS[qtyStr] || NATIVE_TO_VAL[qtyStr] || parseInt(qtyStr);
+      quantity = NATIVE_COUNTER_FORMS[qtyStr!] || NATIVE_TO_VAL[qtyStr!] || parseInt(qtyStr!);
     }
 
     if (!quantity || isNaN(quantity)) {
